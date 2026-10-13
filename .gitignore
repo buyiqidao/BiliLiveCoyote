@@ -10,3 +10,10 @@ ENV/
 
 # IDE
 .vscode/
+
+# 打包 / 运行产物
+build/
+dist/
+logs/
+app.png
+config.yaml.bak
