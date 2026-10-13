@@ -583,7 +583,8 @@ python main.py --test --port 0            # 端口被占用时自动挑空闲端
 ├── config.yaml          # 配置文件（打包后首次运行会复制到 exe 旁边）
 ├── requirements.txt     # Python 依赖
 ├── SAFETY.md            # 使用安全声明与免责声明（务必先读）
-├── LICENSE              # GPL-3.0
+├── LICENSE              # GPL-3.0（标准全文，GitHub 会自动识别）
+├── NOTICE               # 本项目版权与授权声明
 ├── LICENSE-MIT          # 上游 MIT 许可（fork 合规保留）
 ├── LICENSE-GameHub      # DG-Lab Coyote Game Hub 归属声明
 ├── THIRD_PARTY_LICENSES.md  # 第三方组件与许可全文
@@ -809,7 +810,7 @@ OBS 里的**浏览器源**默认不算「网页」，所以关掉控制面板就
   OBS 独立源、本地模拟直播间、桌面紧急停堆悬浮球、单文件 exe 打包等）。
   上游的 MIT 版权与许可声明完整保留在 [LICENSE-MIT](./LICENSE-MIT)。
   （如果你是从上游找过来的：老名字、老配置都能直接用，只是 exe 改叫 `BiliLiveCoyote.exe`。）
-- 本项目整体以 **GNU GPL v3** 发布，见 [LICENSE](./LICENSE)。
+- 本项目整体以 **GNU GPL v3** 发布，见 [LICENSE](./LICENSE)；本项目自己的版权与授权声明在 [NOTICE](./NOTICE)。
   之所以是 GPL-3.0：内置的波形数据来自 [DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)
   （其 `LICENSE` 文件为 GPL-3.0），需要按 GPL 合规分发。
 - **[DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)**（作者 Hyperzlib）：
@@ -824,6 +825,8 @@ OBS 里的**浏览器源**默认不算「网页」，所以关掉控制面板就
 
 本项目整体采用 **GNU General Public License v3.0**，详见 [LICENSE](./LICENSE)。
 
+- 本项目自己的版权与授权声明见 [NOTICE](./NOTICE)；GPL-3.0 全文见 [LICENSE](./LICENSE)
+  （LICENSE 刻意保持成**未经改动的标准全文**，这样 GitHub 才能自动识别出 GPL-3.0）
 - 上游 [xyBakaQAQ/Blive_DGLAB](https://github.com/xyBakaQAQ/Blive_DGLAB) 的 MIT 许可与版权声明
   保留在 [LICENSE-MIT](./LICENSE-MIT)（本项目在其基础上大幅改动）
 - [DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)（Hyperzlib）的归属声明、

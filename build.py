@@ -67,7 +67,7 @@ def main() -> int:
         return ret
 
     # 随 exe 一起放好许可与说明（GPL-3.0 要求再分发时带上）
-    for doc in ("LICENSE", "LICENSE-MIT", "LICENSE-GameHub",
+    for doc in ("LICENSE", "NOTICE", "LICENSE-MIT", "LICENSE-GameHub",
                 "THIRD_PARTY_LICENSES.md", "README.md", "SAFETY.md"):
         src = os.path.join(ROOT, doc)
         if os.path.exists(src):

@@ -1,20 +1,3 @@
-BiliLiveCoyote —— BiliLive 弹幕控制郊狼（DG-Lab）
-Copyright (C) 2026  BiliLiveCoyote contributors
-Copyright (C) 2026  xyBakaQAQ（上游原作者，MIT 部分）
-
-本程序是自由软件：你可以依据自由软件基金会发布的 GNU 通用公共许可证
-（第 3 版，或你选择的任何更新版本）条款再分发和/或修改它。
-
-本程序分发时希望它有用，但不提供任何担保，甚至不提供适销性或特定用途
-适用性的默示担保。详见 GNU 通用公共许可证。
-
-你应当随程序收到一份 GNU 通用公共许可证副本；如果没有，见
-<https://www.gnu.org/licenses/>。
-
-────────────────────────────────────────────────────────────────────
-许可证全文（GNU GPL v3）
-────────────────────────────────────────────────────────────────────
-
 GNU GENERAL PUBLIC LICENSE 
 Version 3, 29 June 2007
 Copyright © 2007 Free Software Foundation, Inc. <http://fsf.org/>
