@@ -1,5 +1,10 @@
 # BiliLiveCoyote · BiliLive 弹幕控制郊狼（DG-Lab）
 
+[![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](./LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](#环境要求)
+[![Platform](https://img.shields.io/badge/platform-Windows-0078D4?logo=windows&logoColor=white)](#环境要求)
+[![Blive_DGLAB 上游](https://img.shields.io/badge/fork%20of-Blived__DGLAB-8a2be2.svg)](https://github.com/xyBakaQAQ/Blive_DGLAB)
+
 > **BiliLiveCoyote** 是一个把 **B 站直播间弹幕/礼物/SC/上舰** 变成 **DG-Lab 郊狼（Coyote）**
 > 电击强度的开源控制器：内置郊狼 SOCKET 服务（官方 App 扫码直连，无需 Game Hub）、
 > 扫码自动填入直播间、OBS 覆盖层、桌面「紧急停堆」悬浮球，还能一键打包成免装 Python 的单文件 exe。
@@ -16,10 +21,13 @@
 > 本项目仅供学习与个人自用，按「现状」提供、**无任何担保**，
 > 使用造成的任何后果由使用者自行承担；与 Bilibili、DG-Lab 官方均无关联。
 
+---
+
 ## 目录
 
 - [功能特性](#功能特性)
 - [环境要求](#环境要求)
+- [依赖项目](#依赖项目)
 - [快速开始](#快速开始)
   - [测试模式开启方法](#测试模式开启方法)
 - [打包成独立 exe](#打包成独立-exe)
@@ -34,6 +42,8 @@
 - [来源与许可](#来源与许可)
 - [许可证](#许可证)
 - [致谢](#致谢)
+
+---
 
 ## 使用安全与免责声明
 
@@ -67,6 +77,8 @@
 - 请确保使用行为符合所在地区法律法规与平台规则；请勿用于任何非法或有害用途
 - 与 Bilibili、DG-Lab 官方均无关；「Bilibili」「DG-Lab」等商标归各自所有者所有
 
+---
+
 ## 功能特性
 
 ### 核心功能
@@ -88,6 +100,8 @@
 - **OBS 集成**：提供 OBS 浏览器源页面，实时显示弹幕和郊狼强度信息
 - **响应式设计**：侧边栏导航，支持快速定位配置项
 
+---
+
 ## 环境要求
 
 用打包好的 exe 时：**Windows 10/11，不需要装任何东西**。
@@ -101,6 +115,8 @@
 - **外置模式（`mode: remote`）**：连接一个已运行的
   [DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub) HTTP API。
 
+---
+
 ## 依赖项目
 
 本项目依赖以下开源项目：
@@ -108,7 +124,14 @@
 - **[blivedm](https://github.com/xfgryujk/blivedm)** - Bilibili 直播弹幕库，提供直播间事件监听功能
 - **[DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)** - DG-Lab 设备的开源控制中心，提供 HTTP API 接口支持
 
+---
+
 ## 快速开始
+
+> **TL;DR**：`pip install -r requirements.txt` → 双击 `启动.bat`（或 `python main.py`）→
+> 浏览器自动打开扫码页，用手机 B 站 App 扫一下就能用了。
+> 手机扫码后不用再管：程序会连上你的直播间，弹幕/礼物/SC/上舰开始控制郊狼。
+> 想先本地空跑：`python main.py --fake`（不连 B 站，见 [测试模式](#测试模式)）。
 
 ### 1. 安装依赖
 
@@ -189,6 +212,8 @@ python main.py
 
 > 详细说明（命令行玩法、`--scenario` 脚本化压测）见 [测试模式](#测试模式)。
 
+---
+
 ## 打包成独立 exe
 
 > 目标电脑**不需要安装 Python**：`dist/BiliLiveCoyote.exe` 单文件、拷走双击即用。
@@ -209,6 +234,7 @@ dist/BiliLiveCoyote.exe
 打包后「紧急停堆」悬浮球照旧可用：主程序会把**自己**再拉起来当悬浮球用
 （内部参数 `--estop-window`），所以不再需要额外附带 `estop_window.py`。
 
+---
 
 ## 配置说明
 
@@ -273,6 +299,35 @@ webui:
 
 > 自己用**浏览器**打开 `/obs.html`、`/obs/strength` 这些页面（预览 / 摆位）是**照常算**「有人在看」的，
 > 不会出现「停在 OBS 页面就被判定成网页全关」的情况。
+
+### 触发配置速查（弹幕 / 礼物 / SC / 上舰）
+
+> 这些都能在**配置页**里点选修改，改完保存即可（大部分**不用重启**）。
+> `duration` 支持 `30s` / `1m` / `15m` 这种写法。
+
+| 配置项 | 含义 | 默认 |
+| --- | --- | :---: |
+| `danmaku.enabled` | 是否启用弹幕触发 | `true` |
+| `danmaku.strength_add` | 每条弹幕加多少强度 | `1` |
+| `danmaku.duration` | 强度持续时长 | `30s` |
+| `danmaku.rate_limit.enabled` | **同一用户限流**开关（防刷） | `true` |
+| `danmaku.rate_limit.time_window` | 限流时间窗 | `1m` |
+| `danmaku.rate_limit.max_count` | 窗口内最多触发几次 | `5` |
+| `danmaku.guard_bonus` | 舰长/提督/总督发弹幕的额外加成 | 见配置 |
+| `interact.enter` / `follow` / `share` / `special_follow` | 进房 / 关注 / 分享 / 特别关注 的 `enabled`+`strength_add`+`duration` | 见配置 |
+| `gift.enabled`、`gift.tiers[]` | 礼物档位（`min_price` 起，对应 `strength_add` / `duration`） | 7 档 |
+| `super_chat.enabled`、`super_chat.tiers[]` | SC 档位 | 4 档 |
+| `guard.enabled`、`guard.levels['1'/'2'/'3']` | 总督 / 提督 / 舰长 的加值与时长 | 见配置 |
+| `dglab.enabled` | 郊狼总开关（关掉=只显示不输出） | `true` |
+| `dglab.mode` | `embedded` 内置 / `remote` 外置 Game Hub | `embedded` |
+| `dglab.client_id` | 郊狼 App 扫码用的客户端 ID（可自定义） | `blivedglab` |
+| `dglab.pulse_id` | 内置波形 ID（见 `pulses.json`） | `d6f83af0`（呼吸） |
+| `estop.auto_launch` | 启动主程序时同时拉起桌面停堆悬浮球 | `true` |
+| `test.enabled` | 测试模式（出现「🧪 测试」页） | `false` |
+| `log.level` | 日志级别 `DEBUG` / `INFO` / `WARNING` / `ERROR` | `INFO` |
+
+> ⚠️ 安全提醒：**单次加值 × 弹幕量 × 上限**决定了实际刺激强度，
+> 详见 [SAFETY.md](./SAFETY.md) 的「直播场景的特别提醒」。
 > 区分方式：页面里如果存在 `window.obsstudio`（OBS 浏览器源会注入它）就当成 OBS 里的覆盖层。
 
 - 每个页面都会偷偷打一个心跳（`/api/page/heartbeat`），关页面时再补一个离开通知，
@@ -295,6 +350,8 @@ test:
 ```
 
 命令行开关与它的关系：`--test` / `--fake` 会**强制开启**，优先级高于配置文件。
+
+---
 
 ## 紧急停堆
 
@@ -377,6 +434,8 @@ python estop_window.py --url http://192.168.1.5:17800
 | `POST /api/hub/emergency-stop` | 紧急停堆 |
 | `POST /api/hub/resume` | 恢复控制 |
 
+---
+
 ## 测试模式
 
 > 🧪 开启方法见 [测试模式开启方法](#测试模式开启方法)（`--test` / `test.enabled` / `--fake` 三选一），
@@ -445,6 +504,8 @@ python main.py --test --port 0            # 端口被占用时自动挑空闲端
 > 如果此时官方郊狼 App 已扫码连上本程序，模拟事件会**真的控制设备**；
 > 只想观察日志的话，在配置页取消勾选「启用郊狼控制器」即可。
 
+---
+
 ## 内置郊狼服务
 
 > 免装 Node.js 版 Game Hub：官方「郊狼」App 直接扫码连本程序。
@@ -496,6 +557,8 @@ python main.py --test --port 0            # 端口被占用时自动挑空闲端
 把 `dglab.mode` 改为 `remote`，并填写 `controller_url` / `controller_id` 即可，
 此时「郊狼控制」页面会直接内嵌外部 Game Hub 的控制台。
 
+---
+
 ## OBS 集成
 
 ### 方式一：三个独立浏览器源（推荐）
@@ -529,6 +592,7 @@ python main.py --test --port 0            # 端口被占用时自动挑空闲端
 | 弹幕列表 | 从下往上滚动，含头像、用户名、舰长徽章、发送时间 |
 
 > 三个区块的**位置和大小都可以自己拖**，见下一节。
+
 | 触发反馈 | 消息里带本次触发的强度与持续时间 |
 | 特殊消息 | 礼物、SC、上舰等 |
 
@@ -566,7 +630,12 @@ python main.py --test --port 0            # 端口被占用时自动挑空闲端
 例如只要强度、不要价格表：`.../obs-source.html?table=0`（加号用 `&` 连接）。
 两个面板都不需要时，`.../obs-source.html?strength=0&table=0` 就只剩弹幕列表。
 
+---
+
 ## 项目结构
+
+<details>
+<summary>点开看完整目录树</summary>
 
 ```
 .
@@ -615,6 +684,10 @@ python main.py --test --port 0            # 端口被占用时自动挑空闲端
 └── blivedm/             # Bilibili 直播弹幕库
 ```
 
+</details>
+
+---
+
 ## 常见问题
 
 ### 找不到「测试」页 / 怎么开测试模式？
@@ -647,7 +720,6 @@ test:
 主循环误以为监听彻底结束就跟着收工了。现在切换期间会打标记继续等新客户端，
 扫码只会换直播间，不会把程序带走（回归用例见 `room_switch_test`）。
 
-
 ### 配置修改后需要重启吗？
 
 大部分配置（弹幕、礼物、SC、上舰等）保存后立即生效，无需重启。但以下配置需要重启：
@@ -657,6 +729,7 @@ test:
 ### 如何禁用郊狼控制？
 
 在配置页面取消勾选 **启用郊狼控制器**，或在 `config.yaml` 中设置：
+
 ```yaml
 dglab:
   enabled: false
@@ -802,6 +875,8 @@ OBS 里的**浏览器源**默认不算「网页」，所以关掉控制面板就
 如果你想让「OBS 还开着」也算，把 `webui.count_obs_pages` 改成 `true`。
 （用浏览器自己打开的 `/obs.html`、`/obs/xxx` 页面无论怎么设置都算「有人在看」。）
 
+---
+
 ## 来源与许可
 
 - **源码仓库：[buyiqidao/BiliLiveCoyote](https://github.com/buyiqidao/BiliLiveCoyote)**（GPL-3.0 分发 exe 时，指回这个地址即可满足「提供对应源码」）
@@ -821,6 +896,8 @@ OBS 里的**浏览器源**默认不算「网页」，所以关掉控制面板就
 - **所有第三方组件、版本与许可全文**见 [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md)；
   打包好的 exe 同样适用（同源分发）。
 
+---
+
 ## 许可证
 
 本项目整体采用 **GNU General Public License v3.0**，详见 [LICENSE](./LICENSE)。
@@ -836,6 +913,8 @@ OBS 里的**浏览器源**默认不算「网页」，所以关掉控制面板就
 
 GPL-3.0 意味着：你可以自由使用、修改、再分发本项目（包括打包后的 exe），
 但**再分发时必须同样以 GPL-3.0 提供完整源码**，并保留上述各项版权声明。
+
+---
 
 ## 致谢
 
