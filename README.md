@@ -1,5 +1,6 @@
 # BiliLiveCoyote · BiliLive 弹幕控制郊狼（DG-Lab）
 
+[![Release](https://img.shields.io/github/v/release/buyiqidao/BiliLiveCoyote?label=release&color=brightgreen)](https://github.com/buyiqidao/BiliLiveCoyote/releases/latest)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](#环境要求)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4?logo=windows&logoColor=white)](#环境要求)
@@ -217,6 +218,9 @@ python main.py
 ## 打包成独立 exe
 
 > 目标电脑**不需要安装 Python**：`dist/BiliLiveCoyote.exe` 单文件、拷走双击即用。
+>
+> 📦 **直接下载**：[**Releases → `BiliLiveCoyote_exe.zip`**](https://github.com/buyiqidao/BiliLiveCoyote/releases/latest)
+> （exe + LICENSE / NOTICE / SAFETY / README，解压即用）；源码包 `BiliLiveCoyote_src.zip` 也在同一个 Release 里。
 
 `dist/` 下已经生成好一个**单文件 exe**，拷到任意目录双击就能用，目标电脑无需安装 Python：
 
