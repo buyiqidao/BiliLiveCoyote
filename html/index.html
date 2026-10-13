@@ -12,7 +12,9 @@
         <div class="nav">
             <a href="/" class="active">📊 首页</a>
             <a href="/config.html">⚙️ 配置</a>
+            <a href="/coyote.html">🦊 郊狼控制</a>
             <a href="/obs.html">🎬 OBS</a>
+            <a href="/test.html" id="nav-test" style="display:none">🧪 测试</a>
         </div>
     </div>
     
@@ -31,12 +33,20 @@
                     <div class="config-value" id="controller-id">-</div>
                 </div>
                 <div class="config-item">
-                    <div class="config-label">连接状态</div>
+                    <div class="config-label">直播间监听</div>
+                    <div class="config-value">
+                        <span class="status" id="bili-status">连接中…</span>
+                    </div>
+                </div>
+                <div class="config-item">
+                    <div class="config-label">面板连接</div>
                     <div class="config-value">
                         <span class="status online" id="status">运行中</span>
                     </div>
                 </div>
             </div>
+            <div id="bili-error" style="display:none; margin-top:12px; padding:10px 12px; background:#2a1116;
+                 border-left:3px solid #ff4d6d; border-radius:6px; font-size:12px; color:#ffb3bf;"></div>
         </div>
         
         <div class="logs-grid">
@@ -54,5 +64,13 @@
     </div>
     
     <script src="/static/app.js"></script>
+
+    <script>
+        // 只有以模拟直播间模式启动时才显示「测试」入口
+        fetch('/api/test/status').then(r => r.json()).then(d => {
+            if (d.enabled) document.getElementById('nav-test').style.display = '';
+        }).catch(() => {});
+    </script>
+    <script src="/static/estop.js"></script>
 </body>
 </html>

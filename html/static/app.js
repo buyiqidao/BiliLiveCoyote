@@ -83,10 +83,46 @@ async function loadLogs() {
     }
 }
 
+// 直播间监听状态（真实连接情况，出问题能一眼看到）
+async function updateBiliStatus() {
+    const el = document.getElementById('bili-status');
+    const errBox = document.getElementById('bili-error');
+    if (!el) return;
+    try {
+        const data = await (await fetch('/api/status')).json();
+        const b = data.bilibili || {};
+        const roomEl = document.getElementById('room-id');
+        if (roomEl && b.room_id) roomEl.textContent = b.room_id;
+
+        if (b.connected) {
+            el.textContent = `监听中（已收 ${b.message_count || 0} 条）`;
+            el.className = 'status online';
+            if (errBox) errBox.style.display = 'none';
+        } else {
+            el.textContent = b.last_error ? '监听异常' : '连接中…';
+            el.className = 'status offline';
+            if (errBox) {
+                if (b.last_error) {
+                    errBox.style.display = '';
+                    errBox.textContent = `直播间监听错误：${b.last_error}`
+                        + (b.retry_count ? `（已尝试重连 ${b.retry_count} 次）` : '');
+                } else {
+                    errBox.style.display = 'none';
+                }
+            }
+        }
+    } catch (e) {
+        el.textContent = '无法获取状态';
+        el.className = 'status offline';
+    }
+}
+
 // 初始化
 loadConfig();
 loadLogs();
 connectWebSocket();
+updateBiliStatus();
+setInterval(updateBiliStatus, 3000);
 
 // OBS 弹窗功能
 function showObsModal() {

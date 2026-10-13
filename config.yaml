@@ -1,21 +1,81 @@
+# ════════════════════════════════════════════════════════════════════
+#  Bilibili 直播弹幕 DG-Lab 控制器 · 配置文件
+#  说明：改完保存即可，大部分配置无需重启；带「重启生效」的会特别标注
+# ════════════════════════════════════════════════════════════════════
+
 bilibili:
+  # 直播间号；支持真实房间号 / 短号 / 直播间链接（如 https://live.bilibili.com/12345）
+  # 启动后会自动打开扫码页，扫一次就会把这里和登录凭证一起填好
   room_id: 1796101901
+  # 扫码登录会自动填入；留空也能连（只能看到部分消息，数据不完整）
   sessdata:
+  # 登录模式：
+  #   always = 每次启动都打开扫码页刷新凭证（推荐，凭证不会过期失效）
+  #   auto   = 只在凭证失效时提示扫码
+  #   off    = 从不提示
+  login_mode: always
+
 dglab:
   enabled: true
+  # embedded: 使用本项目内置的郊狼服务（官方 App 扫码直连，无需再运行 Game Hub）
+  # remote  : 使用外部 DG-Lab Coyote Game Hub 的 HTTP API
+  mode: embedded
+  # 内置模式下官方 App 扫码使用的客户端 ID
+  client_id: blivedglab
+  # 内置模式使用的波形 ID（见 pulses.json，如 d6f83af0 = 呼吸）
+  pulse_id: d6f83af0
+  # 内置模式对外广播的地址，留空则自动探测局域网 IP
+  advertise_host: ''
+  # 以下两项仅在 remote 模式下使用
   controller_url: http://127.0.0.1:8920
   controller_id: all
+
+# 紧急停堆桌面悬浮球（独立窗口，不依赖浏览器）
+estop:
+  auto_launch: true       # 启动主程序时同时拉起悬浮球（等价于命令行 --estop）
+
 webui:
-  host: 127.0.0.1
-  port: 8080
+  # 用官方郊狼 App 连接本程序时，必须监听 0.0.0.0（否则手机连不上 127.0.0.1）
+  # 注意：这会把 WebUI（含配置页）暴露给同一局域网，请勿在公共网络下使用
+  host: 0.0.0.0
+  port: 17800             # 修改后需要重启程序（默认避开 8080：那货常和 Steam / 其他软件撞）
+
+  # 关掉所有网页后自动退出程序（启动后一个网页都没打开过则不会退出）
+  # 想让程序一直挂着，改成 false（或启动时加 --no-exit-when-page-closed）
+  exit_when_page_closed: true
+
+  # 只在 OBS「浏览器源」里跑着的 /obs 页面，算不算「网页」
+  #   false（默认）：不算 —— 关掉控制面板就退出，哪怕 OBS 里的覆盖层还开着
+  #   true        ：算   —— OBS 开着时不会退出，免得直播到一半把程序关掉
+  # 注意：自己用浏览器打开 /obs 页面（预览、摆位）是**照常算**的，
+  #       不会出现「停在 OBS 页面就被判定成网页全关」的情况。
+  count_obs_pages: false
+
+# OBS 覆盖层
+#   三个独立源：/obs/strength、/obs/price、/obs/danmaku（在 OBS 里各自摆位）
+#   组合版布局：在 obs.html 里拖动调整后自动写入下面这段，一般不用手改
+# obs:
+#   layout:
+#     strength: {x: 1,  y: 1,  w: 0,  h: 0,  visible: true}
+#     price:    {x: 18, y: 1,  w: 0,  h: 0,  visible: true}
+#     danmaku:  {x: 1,  y: 36, w: 30, h: 62, visible: true}
+
+# 本地测试：开启后 WebUI 会显示「测试」页面，可手动注入模拟事件
+# （也可以不改配置，直接用 python main.py --test 临时开启）
+test:
+  enabled: false
+
+# ── 弹幕触发 ────────────────────────────────────────────────────────
 danmaku:
   enabled: true
   strength_add: 1
   duration: 30s
+  # 限流：X 分钟内同一用户最多触发 X 次
   rate_limit:
     enabled: true
     time_window: 1m
     max_count: 5
+  # 舰长 / 提督 / 总督 发弹幕额外加成
   guard_bonus:
     '1':
       duration: 30s
@@ -27,6 +87,8 @@ danmaku:
       duration: 30s
       strength_add: 2
     enabled: false
+
+# ── 互动事件 ────────────────────────────────────────────────────────
 interact:
   enter:
     enabled: false
@@ -44,6 +106,8 @@ interact:
     enabled: false
     strength_add: 2
     duration: 30s
+
+# ── 礼物（按金瓜子价格分档，取满足条件的最高档）─────────────────────
 gift:
   enabled: true
   tiers:
@@ -68,6 +132,8 @@ gift:
   - min_price: 100
     strength_add: 30
     duration: 30m
+
+# ── 醒目留言 SC ─────────────────────────────────────────────────────
 super_chat:
   enabled: true
   tiers:
@@ -83,17 +149,20 @@ super_chat:
   - min_price: 500
     strength_add: 35
     duration: 30m
+
+# ── 上舰 ────────────────────────────────────────────────────────────
 guard:
   enabled: true
   levels:
-    '1':
+    '1':                  # 总督
       strength_add: 40
       duration: 15m
-    '2':
+    '2':                  # 提督
       strength_add: 30
       duration: 10m
-    '3':
+    '3':                  # 舰长
       strength_add: 20
       duration: 5m
+
 log:
-  level: INFO
+  level: INFO             # DEBUG / INFO / WARNING / ERROR

@@ -1,12 +1,49 @@
 let currentConfig = null;
 
+/** 读取等级配置，兼容 YAML 里的字符串键 '1'/'2'/'3' 与数字键 */
+function levelConfig(mapping, level) {
+    if (!mapping) return null;
+    return mapping[level] ?? mapping[String(level)] ?? null;
+}
+
+let hubStatus = null;
+
 async function loadConfig() {
     try {
-        const resp = await fetch('/api/config/full');
-        currentConfig = await resp.json();
+        const [cfgResp, hubResp] = await Promise.all([
+            fetch('/api/config/full'),
+            fetch('/api/hub/status').catch(() => null)
+        ]);
+        currentConfig = await cfgResp.json();
+        if (hubResp && hubResp.ok) {
+            hubStatus = await hubResp.json();
+        }
         populateForm(currentConfig);
+        refreshLoginState();
     } catch (e) {
         showMessage('加载配置失败: ' + e.message, 'error');
+    }
+}
+
+// ── 登录状态（扫一次就够了，这里显示当前是否还登录着）──
+async function refreshLoginState() {
+    const el = document.getElementById('login-state');
+    if (!el) return;
+    try {
+        const d = await (await fetch('/api/bilibili/login')).json();
+        if (d.is_login) {
+            el.textContent = `✅ 已登录：${d.uname || ''}　（凭证已保存，重启自动恢复）`;
+            el.style.color = '#00d9ff';
+        } else if (d.has_saved_cookie) {
+            el.textContent = '⚠️ 登录已失效，请重新扫码';
+            el.style.color = '#ff6b6b';
+        } else {
+            el.textContent = '未登录（基础弹幕可用，扫码后数据更完整）';
+            el.style.color = '#888';
+        }
+    } catch (e) {
+        el.textContent = '无法获取登录状态';
+        el.style.color = '#ff6b6b';
     }
 }
 
@@ -15,15 +52,27 @@ function populateForm(config) {
     document.getElementById('room-id').value = config.bilibili.room_id || '';
     document.getElementById('sessdata').value = config.bilibili.sessdata || '';
     
+    // Bilibili 登录模式
+    const bili = config.bilibili || {};
+    const modeEl = document.getElementById('bili-login-mode');
+    if (modeEl) modeEl.value = bili.login_mode || 'always';
+
     // DG-Lab
-    document.getElementById('dglab-enabled').checked = config.dglab.enabled !== false;
-    document.getElementById('controller-url').value = config.dglab.controller_url || '';
-    document.getElementById('controller-id').value = config.dglab.controller_id || '';
+    const dglab = config.dglab || {};
+    document.getElementById('dglab-enabled').checked = dglab.enabled !== false;
+    document.getElementById('dglab-mode').value = dglab.mode === 'remote' ? 'remote' : 'embedded';
+    document.getElementById('dglab-client-id').value = dglab.client_id || 'blivedglab';
+    document.getElementById('controller-url').value = dglab.controller_url || '';
+    document.getElementById('controller-id').value = dglab.controller_id || '';
+    renderPulseOptions(dglab.pulse_id);
+    toggleDglabMode();
     
     // WebUI
     const webui = config.webui || {};
     document.getElementById('webui-host').value = webui.host || '0.0.0.0';
-    document.getElementById('webui-port').value = webui.port || 8080;
+    document.getElementById('webui-port').value = webui.port || 17800;
+    document.getElementById('exit-when-page-closed').checked = webui.exit_when_page_closed !== false;
+    document.getElementById('count-obs-pages').checked = webui.count_obs_pages === true;
     
     // 弹幕
     document.getElementById('danmaku-enabled').checked = config.danmaku.enabled;
@@ -46,19 +95,14 @@ function populateForm(config) {
     
     // 上舰
     document.getElementById('guard-enabled').checked = config.guard.enabled;
+    // 注意：YAML 中的等级键是字符串 '1'/'2'/'3'，这里用 levelConfig 兼容 int/str 两种键
     const guardLevels = config.guard.levels || {};
-    if (guardLevels[3]) {
-        document.getElementById('guard-3-strength').value = guardLevels[3].strength_add;
-        document.getElementById('guard-3-duration').value = guardLevels[3].duration;
-    }
-    if (guardLevels[2]) {
-        document.getElementById('guard-2-strength').value = guardLevels[2].strength_add;
-        document.getElementById('guard-2-duration').value = guardLevels[2].duration;
-    }
-    if (guardLevels[1]) {
-        document.getElementById('guard-1-strength').value = guardLevels[1].strength_add;
-        document.getElementById('guard-1-duration').value = guardLevels[1].duration;
-    }
+    [3, 2, 1].forEach(lv => {
+        const cfg = levelConfig(guardLevels, lv);
+        if (!cfg) return;
+        document.getElementById(`guard-${lv}-strength`).value = cfg.strength_add ?? '';
+        document.getElementById(`guard-${lv}-duration`).value = cfg.duration ?? '';
+    });
     
     // 互动
     const interact = config.interact || {};
@@ -70,6 +114,38 @@ function populateForm(config) {
         if (enabled) enabled.checked = cfg.enabled || false;
         if (strength) strength.value = cfg.strength_add || '';
         if (duration) duration.value = cfg.duration || '';
+    });
+}
+
+function renderPulseOptions(selected) {
+    const select = document.getElementById('dglab-pulse-id');
+    if (!select) return;
+    const pulses = (hubStatus && hubStatus.pulses) || [];
+    select.innerHTML = '';
+    pulses.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name ? `${p.name} (${p.id})` : p.id;
+        select.appendChild(opt);
+    });
+    if (!pulses.length) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = '（未能读取内置波形）';
+        select.appendChild(opt);
+    }
+    if (selected && pulses.some(p => p.id === selected)) {
+        select.value = selected;
+    }
+}
+
+function toggleDglabMode() {
+    const mode = document.getElementById('dglab-mode').value;
+    document.querySelectorAll('.dglab-embedded-only').forEach(el => {
+        el.style.display = mode === 'embedded' ? '' : 'none';
+    });
+    document.querySelectorAll('.dglab-remote-only').forEach(el => {
+        el.style.display = mode === 'remote' ? '' : 'none';
     });
 }
 
@@ -132,20 +208,31 @@ function collectTiers(type) {
 
 async function saveConfig() {
     try {
-        const config = {
-            bilibili: {
-                room_id: parseInt(document.getElementById('room-id').value),
-                sessdata: document.getElementById('sessdata').value
-            },
-            dglab: {
+        // 以当前配置为底稿，避免未在页面中展示的字段（如 guard_bonus）被丢弃
+        const config = JSON.parse(JSON.stringify(currentConfig || {}));
+        Object.assign(config, {
+            // 用 Object.assign 合到原对象上，避免把扫码保存的 cookies 冲掉
+            bilibili: Object.assign({}, currentConfig.bilibili, {
+                // 允许填短号 / 直播间链接，后端会解析成真实房间号
+                room_id: document.getElementById('room-id').value.trim(),
+                sessdata: document.getElementById('sessdata').value,
+                login_mode: document.getElementById('bili-login-mode').value
+            }),
+            dglab: Object.assign({}, currentConfig.dglab, {
                 enabled: document.getElementById('dglab-enabled').checked,
+                mode: document.getElementById('dglab-mode').value,
+                client_id: document.getElementById('dglab-client-id').value || 'blivedglab',
+                pulse_id: document.getElementById('dglab-pulse-id').value,
                 controller_url: document.getElementById('controller-url').value,
                 controller_id: document.getElementById('controller-id').value
-            },
-            webui: {
+            }),
+            // 同样用 Object.assign 合并：webui 下还有 exit_when_page_closed 等字段
+            webui: Object.assign({}, currentConfig.webui, {
                 host: document.getElementById('webui-host').value,
-                port: parseInt(document.getElementById('webui-port').value)
-            },
+                port: parseInt(document.getElementById('webui-port').value),
+                exit_when_page_closed: document.getElementById('exit-when-page-closed').checked,
+                count_obs_pages: document.getElementById('count-obs-pages').checked
+            }),
             danmaku: {
                 enabled: document.getElementById('danmaku-enabled').checked,
                 strength_add: parseInt(document.getElementById('danmaku-strength').value),
@@ -189,23 +276,22 @@ async function saveConfig() {
             },
             guard: {
                 enabled: document.getElementById('guard-enabled').checked,
-                levels: {
-                    3: {
-                        strength_add: parseInt(document.getElementById('guard-3-strength').value),
-                        duration: document.getElementById('guard-3-duration').value
-                    },
-                    2: {
-                        strength_add: parseInt(document.getElementById('guard-2-strength').value),
-                        duration: document.getElementById('guard-2-duration').value
-                    },
-                    1: {
-                        strength_add: parseInt(document.getElementById('guard-1-strength').value),
-                        duration: document.getElementById('guard-1-duration').value
-                    }
-                }
+                levels: (() => {
+                    const levels = {};
+                    [1, 2, 3].forEach(lv => {
+                        const old = levelConfig(currentConfig.guard && currentConfig.guard.levels, lv) || {};
+                        const strength = document.getElementById(`guard-${lv}-strength`).value;
+                        const duration = document.getElementById(`guard-${lv}-duration`).value;
+                        levels[String(lv)] = {
+                            strength_add: strength === '' ? (old.strength_add ?? 0) : parseInt(strength),
+                            duration: duration || old.duration || '30s'
+                        };
+                    });
+                    return levels;
+                })()
             },
             log: currentConfig.log || { level: 'INFO' }
-        };
+        });
         
         const resp = await fetch('/api/config/save', {
             method: 'POST',
@@ -235,7 +321,18 @@ function showMessage(text, type) {
     }, 5000);
 }
 
+// 环境自检：缺 ruamel.yaml 会丢注释，必须让用户看见
+async function checkHealth() {
+    try {
+        const h = await (await fetch('/api/health')).json();
+        const box = document.getElementById('dep-warning');
+        if (box && h.ruamel === false) box.style.display = '';
+    } catch (e) { /* 忽略 */ }
+}
+
 // 初始化
+document.getElementById('dglab-mode').addEventListener('change', toggleDglabMode);
+checkHealth();
 loadConfig();
 
 // 平滑滚动到锚点
@@ -255,3 +352,109 @@ document.querySelectorAll('.nav-link').forEach(link => {
         }
     });
 });
+
+
+// ── Bilibili 扫码登录 ────────────────────────────────────────────────
+let qrKey = null;
+let qrTimer = null;
+
+function stopQrLogin() {
+    if (qrTimer) { clearInterval(qrTimer); qrTimer = null; }
+    qrKey = null;
+    const box = document.getElementById('qr-box');
+    if (box) box.style.display = 'none';
+    const btn = document.getElementById('qr-start');
+    if (btn) { btn.disabled = false; btn.textContent = '显示二维码'; }
+}
+
+async function startQrLogin() {
+    const btn = document.getElementById('qr-start');
+    const hint = document.getElementById('qr-hint');
+    btn.disabled = true;
+    btn.textContent = '生成中…';
+    const hintEl = document.getElementById('qr-hint');
+    if (hintEl) { hintEl.style.color = '#888'; }
+    try {
+        const data = await (await fetch('/api/bilibili/qrcode', { method: 'POST' })).json();
+        if (!data.success) {
+            hint.textContent = '生成二维码失败：' + (data.error || '未知错误');
+            hint.style.color = '#ff6b6b';
+            btn.disabled = false;
+            btn.textContent = '重试';
+            return;
+        }
+        qrKey = data.key;
+        document.getElementById('qr-img').innerHTML = data.qr_svg;
+        document.getElementById('qr-box').style.display = '';
+        document.getElementById('qr-state').textContent = '等待扫码…（二维码 3 分钟内有效）';
+        btn.textContent = '刷新二维码';
+        btn.disabled = false;
+        clearInterval(qrTimer);
+        qrTimer = setInterval(pollQrLogin, 2000);
+    } catch (e) {
+        hint.textContent = '生成二维码失败：' + e.message;
+        hint.style.color = '#ff6b6b';
+        btn.disabled = false;
+        btn.textContent = '重试';
+    }
+}
+
+async function pollQrLogin() {
+    if (!qrKey) return;
+    const state = document.getElementById('qr-state');
+    try {
+        const data = await (await fetch('/api/bilibili/qrcode/status?key=' + encodeURIComponent(qrKey))).json();
+        if (!data.success) {
+            state.textContent = '查询失败：' + (data.error || '未知错误');
+            state.style.color = '#ff6b6b';
+            return;
+        }
+        if (!data.login) {
+            state.textContent = data.message || '等待扫码…';
+            state.style.color = data.expired ? '#ff6b6b' : '#e0e0e0';
+            if (data.expired) { clearInterval(qrTimer); qrTimer = null; }
+            return;
+        }
+        // 登录成功
+        clearInterval(qrTimer);
+        qrTimer = null;
+        const room = data.room || {};
+        state.textContent = `✅ 登录成功！直播间：${room.uname || ''} ${room.room_id || ''}`;
+        state.style.color = '#00d9ff';
+        const hint = document.getElementById('qr-hint');
+        hint.textContent = '已自动填入 SESSDATA 和直播间号，登录凭证已保存，下次启动不用再扫';
+        hint.style.color = '#00d9ff';
+        setTimeout(() => { loadConfig(); stopQrLogin(); }, 600);
+    } catch (e) {
+        state.textContent = '查询失败：' + e.message;
+        state.style.color = '#ff6b6b';
+    }
+}
+
+async function resolveRoom() {
+    const input = document.getElementById('room-id');
+    const hint = document.getElementById('room-hint');
+    const value = input.value.trim();
+    if (!value) { hint.textContent = '请先填房间号或粘贴直播间链接'; hint.style.color = '#ff6b6b'; return; }
+    hint.textContent = '解析中…';
+    hint.style.color = '#888';
+    try {
+        const data = await (await fetch('/api/bilibili/room/resolve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ room: value })
+        })).json();
+        if (!data.success) {
+            hint.textContent = '解析失败：' + (data.error || '未知错误');
+            hint.style.color = '#ff6b6b';
+            return;
+        }
+        const room = data.room || {};
+        input.value = room.room_id || value;
+        hint.textContent = `✅ 已解析并切换：${room.uname || ''} ${room.title ? '· ' + room.title : ''}（房间号 ${room.room_id}）`;
+        hint.style.color = '#00d9ff';
+    } catch (e) {
+        hint.textContent = '解析失败：' + e.message;
+        hint.style.color = '#ff6b6b';
+    }
+}

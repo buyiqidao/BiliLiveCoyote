@@ -200,7 +200,8 @@ h3 { color: #00b8dd; margin: 15px 0 10px; font-size: 16px; }
 }
 
 input[type="text"],
-input[type="number"] {
+input[type="number"],
+select {
     width: 100%;
     background: #0a0a15;
     border: 1px solid #333;
@@ -211,7 +212,8 @@ input[type="number"] {
 }
 
 input[type="text"]:focus,
-input[type="number"]:focus {
+input[type="number"]:focus,
+select:focus {
     outline: none;
     border-color: #00d9ff;
 }
