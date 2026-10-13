@@ -43,7 +43,7 @@ Copyright (c) Hyperzlib and DG-Lab Coyote Game Hub contributors.
 
 再分发本项目（源码或打包好的 exe）时：保留本文件、./LICENSE 、./LICENSE-MIT
 与 ./THIRD_PARTY_LICENSES.md 即可。整体仍需以 GPL-3.0 提供完整对应源码 ——
-对应源码即本仓库本身。
+对应源码见 <https://github.com/buyiqidao/BiliLiveCoyote> 。
 
 最终以 https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub 仓库中的
 LICENSE / package.json 为准。

@@ -5,7 +5,8 @@
 它使用了下列第三方组件；各组件的版权归其作者所有，并按其自身许可提供。
 本文件列出实际使用的版本与许可全文，**打包分发的 exe 同样适用**。
 
-如果你要再分发本项目的 exe 或源码，请一并保留 `LICENSE`、`LICENSE-MIT` 与本文件。
+如果你要再分发本项目的 exe 或源码，请一并保留 `LICENSE`、`LICENSE-MIT` 与本文件；
+本项目的对应源码在 <https://github.com/buyiqidao/BiliLiveCoyote> 。
 
 > 各项第三方归属声明单独成文：上游见 [LICENSE-MIT](./LICENSE-MIT)、blivedm 见
 > [blivedm/LICENSE](./blivedm/LICENSE)、DG-Lab Coyote Game Hub 见 [LICENSE-GameHub](./LICENSE-GameHub)。

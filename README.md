@@ -204,6 +204,7 @@ dist/BiliLiveCoyote.exe
 - 想重新打包 / 换图标：`python build.py`（或双击 `build_exe.bat`），需要先 `pip install pyinstaller`
 - exe 与源码同源、同样以 **GPL-3.0** 分发：再分发 exe 时请一并带上 `LICENSE`、`LICENSE-MIT`、
   `LICENSE-GameHub` 和 `THIRD_PARTY_LICENSES.md`（打包出来的发布包里就带着这几份）
+- 对应源码：<https://github.com/buyiqidao/BiliLiveCoyote>（收到 exe 的人凭这个地址就能拿到完整源码）
 
 打包后「紧急停堆」悬浮球照旧可用：主程序会把**自己**再拉起来当悬浮球用
 （内部参数 `--estop-window`），所以不再需要额外附带 `estop_window.py`。
@@ -802,6 +803,7 @@ OBS 里的**浏览器源**默认不算「网页」，所以关掉控制面板就
 
 ## 来源与许可
 
+- **源码仓库：[buyiqidao/BiliLiveCoyote](https://github.com/buyiqidao/BiliLiveCoyote)**（GPL-3.0 分发 exe 时，指回这个地址即可满足「提供对应源码」）
 - 本项目原名叫 **Blive_DGLAB**，**fork 自 [xyBakaQAQ/Blive_DGLAB](https://github.com/xyBakaQAQ/Blive_DGLAB)**（MIT），
   现更名 **BiliLiveCoyote**。在它基础上做了**大量改动与重写**（扫码登录、内置郊狼服务、
   OBS 独立源、本地模拟直播间、桌面紧急停堆悬浮球、单文件 exe 打包等）。
