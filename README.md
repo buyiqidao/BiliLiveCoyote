@@ -1,35 +1,64 @@
 # Bilibili 直播弹幕 DG-Lab 控制器
 
-## 免责声明
+> ⚠️ **使用前必读：[SAFETY.md](./SAFETY.md)（使用安全声明与免责声明）**
+>
+> 这是一个**电刺激设备**的第三方控制程序，弹幕/礼物会让**别人间接影响你身上的电流**。
+> 请务必先读安全声明：从最低强度开始、不跨心脏、设好上限与限流、
+> **先测试紧急停堆**、随时可以物理断电。**未成年人禁止使用。**
+>
+> 本项目仅供学习与个人自用，按「现状」提供、**无任何担保**，
+> 使用造成的任何后果由使用者自行承担；与 Bilibili、DG-Lab 官方均无关联。
 
->本项目仅供学习之用。使用本项目代码所产生的一切后果由使用者自行承担，开发者不承担任何责任。
+## 目录
 
-**重要提示**：
-- 请确保遵守所在地区的法律法规
-- 请负责任地使用本工具，不要用于非法或有害的目的
-- 使用前请充分了解 DG-Lab 设备的相关说明文档
-- 本项目与 Bilibili 官方无关，仅为第三方应用
+- [功能特性](#功能特性)
+- [环境要求](#环境要求)
+- [快速开始](#快速开始)
+  - [测试模式开启方法](#测试模式开启方法)
+- [打包成独立 exe](#打包成独立-exe)
+- [配置说明](#配置说明)
+- [紧急停堆](#紧急停堆)
+- [测试模式](#测试模式)
+- [内置郊狼服务](#内置郊狼服务)
+- [OBS 集成](#obs-集成)
+- [项目结构](#项目结构)
+- [常见问题](#常见问题)
+- [使用安全与免责声明](#使用安全与免责声明)
+- [来源与许可](#来源与许可)
+- [许可证](#许可证)
+- [致谢](#致谢)
 
----
+## 使用安全与免责声明
 
-这是一个将 Bilibili 直播间互动与 DG-Lab 联动的程序，提供 Web UI 管理界面
+> **⚠️ 这里只是摘要，完整内容见 [SAFETY.md](./SAFETY.md)，请务必读完再上手。**
 
-## 来源与许可
+**设备安全（电刺激）**
 
-- 本项目 **fork 自 [xyBakaQAQ/Blive_DGLAB](https://github.com/xyBakaQAQ/Blive_DGLAB)**（MIT），
-  并在其基础上做了**大量改动与重写**（扫码登录、内置郊狼服务、OBS 独立源、本地模拟直播间、
-  桌面紧急停堆悬浮球、单文件 exe 打包等）。上游的 MIT 版权与许可声明完整保留在
-  [LICENSE-MIT](./LICENSE-MIT)。
-- 本项目整体以 **GNU GPL v3** 发布，见 [LICENSE](./LICENSE)。
-  之所以是 GPL-3.0：内置的波形数据来自 [DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)
-  （其 `LICENSE` 文件为 GPL-3.0），需要按 GPL 合规分发。
-- **[DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)**（作者 Hyperzlib）：
-  本项目的内置郊狼服务参考其 SOCKET 协议**重新实现**，内置波形数据 `pulses.json`
-  由其 `server/data/pulse.json5` 转换而来。完整归属声明见 [LICENSE-GameHub](./LICENSE-GameHub)。
-- 内嵌的 [blivedm](https://github.com/xfgryujk/blivedm) 以 MIT 分发，许可全文见
-  [blivedm/LICENSE](./blivedm/LICENSE)。
-- **所有第三方组件、版本与许可全文**见 [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md)；
-  打包好的 exe 同样适用（同源分发）。
+- **禁止**电极跨心脏 / 贴胸口、头脸眼口鼻、**颈部喉部**、破损或发炎皮肤
+- **禁止**人群：装有心脏起搏器等植入设备、心脏病、癫痫、孕妇、未成年人
+- **禁止**在饮酒/服药后、疲劳、洗澡或潮湿环境、开车或操作机械、无人看管时使用
+- 强度**从最低开始**逐步加；单次别太久；调整电极前先停堆/断开
+- 出现心悸、胸闷、头晕、灼痛、肌肉痉挛等任何不适 → **立刻停堆并物理断电**，必要时就医
+
+**直播场景**
+
+- 弹幕/礼物会让**不特定的人间接控制你身上的电流**，请设好设备端上限、限流与单次加值
+- 建议**桌面悬浮球常亮**（左键单击立即停堆）；观众感受不到你的体感，别为了效果把上限开高
+
+**软件风险**
+
+- 断网、崩溃、断电等情况下设备可能停在当时的脉冲上，**唯一可靠的保险是物理断电**
+- `config.yaml` 存有登录凭证，分享项目前请先清空
+- 本程序默认以 `0.0.0.0` 监听（手机扫码需要），**不要在公共网络下开启**
+
+**免责声明**
+
+- 本项目仅供学习与个人自用，按「现状」（AS IS）提供，**不提供任何明示或默示担保**
+  （见 [LICENSE](./LICENSE) 的 GPL-3.0 第 15、16 条）
+- **使用风险自负**：因使用或无法使用本程序造成的任何人身伤害、健康损害、财产损失、
+  设备损坏、直播事故、账号封禁或其他直接/间接损害，**作者与贡献者不承担任何责任**
+- 请确保使用行为符合所在地区法律法规与平台规则；请勿用于任何非法或有害用途
+- 与 Bilibili、DG-Lab 官方均无关；「Bilibili」「DG-Lab」等商标归各自所有者所有
 
 ## 功能特性
 
@@ -122,7 +151,7 @@ python main.py
 > - 想**完全不连 Bilibili 本地联调**：`python main.py --fake`（或 `python fake_room.py`）
 > - 不想让它**自动弹浏览器**：加 `--no-browser`（只把地址打印出来）
 >
-> 详见 [本地测试](#本地测试模拟事件注入)。
+> 详见 [测试模式](#测试模式)。
 
 ### 4. 访问 Web UI
 
@@ -132,8 +161,30 @@ python main.py
 - **配置**：修改配置项
 - **OBS**：获取 OBS 链接
 - **郊狼控制**：查看设备状态、扫码连接、手动调整强度
+- **🧪 测试**：注入模拟事件（**只有开启测试模式才会出现**，见下）
 
-## 打包成独立 exe（免装 Python）
+### 测试模式开启方法
+
+「测试」页和 `--fake` 模拟直播间都是**主程序的一个开关**（不是另一个进程，不会和正在运行的实例冲突）。
+三种开启方式，任选一种：
+
+| 方式 | 怎么开 | 效果 |
+| --- | --- | --- |
+| **命令行（推荐）** | `python main.py --test` | 连真实直播间 + 多出「🧪 测试」页与 `/api/test/*` 接口 |
+| **配置文件（长期开启）** | `config.yaml` 里写 `test: { enabled: true }` | 同上，不用每次加参数（`--test`/`--fake` 会强制开启，优先级更高） |
+| **完全不连 B 站** | `python main.py --fake`（等价 `python fake_room.py`） | 只用本地模拟直播间，不连 Bilibili |
+
+开启后打开 **`http://localhost:17800/test.html`**（或点侧边栏「🧪 测试」）：
+
+- 点按钮即可注入弹幕 / 礼物 / SC / 上舰 / 进房 / 关注…，还能连发 N 条压测
+- 事件按 B 站**原始协议报文**构造，走完整链路：`原始协议 → blivedm → BilibiliHandler → DGLabController → 郊狼`
+- 此时若官方郊狼 App 已扫码连上，**模拟事件会真的控制设备**；只想看日志就在配置页取消勾选「启用郊狼控制器」
+
+> 详细说明（命令行玩法、`--scenario` 脚本化压测）见 [测试模式](#测试模式)。
+
+## 打包成独立 exe
+
+> 目标电脑**不需要安装 Python**：`dist/BliveDGLab.exe` 单文件、拷走双击即用。
 
 `dist/` 下已经生成好一个**单文件 exe**，拷到任意目录双击就能用，目标电脑无需安装 Python：
 
@@ -150,6 +201,8 @@ dist/BliveDGLab.exe
 打包后「紧急停堆」悬浮球照旧可用：主程序会把**自己**再拉起来当悬浮球用
 （内部参数 `--estop-window`），所以不再需要额外附带 `estop_window.py`。
 
+
+## 配置说明
 
 ### 直播间配置（每次启动扫码刷新）
 
@@ -235,9 +288,9 @@ test:
 
 命令行开关与它的关系：`--test` / `--fake` 会**强制开启**，优先级高于配置文件。
 
-## 🛑 紧急停堆
+## 紧急停堆
 
-两种方式，都**不需要打开浏览器**；推荐用桌面悬浮球（主程序不在前台也能点）。
+> 🛑 两种方式，都**不需要打开浏览器**；推荐用桌面悬浮球（主程序不在前台也能点）。
 
 ### 方式一：桌面悬浮球（推荐，不依赖 Web）
 
@@ -316,7 +369,10 @@ python estop_window.py --url http://192.168.1.5:17800
 | `POST /api/hub/emergency-stop` | 紧急停堆 |
 | `POST /api/hub/resume` | 恢复控制 |
 
-## 本地测试（模拟事件注入）
+## 测试模式
+
+> 🧪 开启方法见 [测试模式开启方法](#测试模式开启方法)（`--test` / `test.enabled` / `--fake` 三选一），
+> 下面是细节玩法。
 
 测试工具**不是另一个进程**，而是主程序的一个开关 —— 同一个进程、同一个端口、同一份 `config.yaml`，
 不会和正在运行的 Blive_DGLAB 冲突：
@@ -381,7 +437,9 @@ python main.py --test --port 0            # 端口被占用时自动挑空闲端
 > 如果此时官方郊狼 App 已扫码连上本程序，模拟事件会**真的控制设备**；
 > 只想观察日志的话，在配置页取消勾选「启用郊狼控制器」即可。
 
-## 内置郊狼服务（免 Game Hub）
+## 内置郊狼服务
+
+> 免装 Node.js 版 Game Hub：官方「郊狼」App 直接扫码连本程序。
 
 > **前提**：手机要能连进来，WebUI 必须监听 `0.0.0.0`（默认已是）。
 > 如果你把它改回了 `127.0.0.1`，手机端会提示「服务器连接失败」——
@@ -516,11 +574,17 @@ python main.py --test --port 0            # 端口被占用时自动挑空闲端
 ├── utils.py             # 工具函数（资源路径 / 时间解析等）
 ├── config.yaml          # 配置文件（打包后首次运行会复制到 exe 旁边）
 ├── requirements.txt     # Python 依赖
+├── SAFETY.md            # 使用安全声明与免责声明（务必先读）
+├── LICENSE              # GPL-3.0
+├── LICENSE-MIT          # 上游 MIT 许可（fork 合规保留）
+├── LICENSE-GameHub      # DG-Lab Coyote Game Hub 归属声明
+├── THIRD_PARTY_LICENSES.md  # 第三方组件与许可全文
 ├── build.py             # 一键打包成 exe
 ├── build_exe.bat        # 双击打包（Windows）
 ├── make_icon.py         # 生成程序图标 app.ico
 ├── app.ico              # 程序图标
-├── dist/               # 打包产物：BliveDGLab.exe
+├── 启动.bat / start.bat # Windows 一键启动
+├── dist/                # 打包产物：BliveDGLab.exe + 上述许可文件
 ├── html/                # Web UI 前端文件
 │   ├── index.html       # 首页
 │   ├── config.html      # 配置页面
@@ -533,11 +597,35 @@ python main.py --test --port 0            # 端口被占用时自动挑空闲端
 │       ├── obs.css      # OBS 样式
 │       ├── app.js       # 首页脚本
 │       ├── config.js    # 配置页脚本
-│       └── obs.js       # OBS 脚本
+│       ├── coyote.js    # 郊狼控制页脚本
+│       ├── test.js      # 测试页脚本
+│       ├── login.js     # 扫码登录页脚本
+│       ├── obs.js       # OBS 脚本
+│       ├── estop.js     # 网页版悬浮停堆按钮
+│       └── presence.js  # 页面心跳（关掉所有网页自动退出）
 └── blivedm/             # Bilibili 直播弹幕库
 ```
 
 ## 常见问题
+
+### 找不到「测试」页 / 怎么开测试模式？
+
+测试页默认是关着的，三种开启方式任选一种：
+
+```sh
+python main.py --test        # 连真实直播间 + 打开测试页（推荐）
+python main.py --fake        # 完全不连 B 站，只用模拟直播间
+```
+
+或者改 `config.yaml` 长期开启：
+
+```yaml
+test:
+  enabled: true
+```
+
+开启后侧边栏会出现「🧪 测试」入口，也可直接访问 `http://localhost:17800/test.html`。
+详见 [测试模式开启方法](#测试模式开启方法)。
 
 ### 为什么默认端口不是 8080？
 
@@ -704,6 +792,23 @@ OBS 页面会自动加载最近 50 条弹幕历史记录。如果没有显示，
 OBS 里的**浏览器源**默认不算「网页」，所以关掉控制面板就会退出；
 如果你想让「OBS 还开着」也算，把 `webui.count_obs_pages` 改成 `true`。
 （用浏览器自己打开的 `/obs.html`、`/obs/xxx` 页面无论怎么设置都算「有人在看」。）
+
+## 来源与许可
+
+- 本项目 **fork 自 [xyBakaQAQ/Blive_DGLAB](https://github.com/xyBakaQAQ/Blive_DGLAB)**（MIT），
+  并在其基础上做了**大量改动与重写**（扫码登录、内置郊狼服务、OBS 独立源、本地模拟直播间、
+  桌面紧急停堆悬浮球、单文件 exe 打包等）。上游的 MIT 版权与许可声明完整保留在
+  [LICENSE-MIT](./LICENSE-MIT)。
+- 本项目整体以 **GNU GPL v3** 发布，见 [LICENSE](./LICENSE)。
+  之所以是 GPL-3.0：内置的波形数据来自 [DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)
+  （其 `LICENSE` 文件为 GPL-3.0），需要按 GPL 合规分发。
+- **[DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)**（作者 Hyperzlib）：
+  本项目的内置郊狼服务参考其 SOCKET 协议**重新实现**，内置波形数据 `pulses.json`
+  由其 `server/data/pulse.json5` 转换而来。完整归属声明见 [LICENSE-GameHub](./LICENSE-GameHub)。
+- 内嵌的 [blivedm](https://github.com/xfgryujk/blivedm) 以 MIT 分发，许可全文见
+  [blivedm/LICENSE](./blivedm/LICENSE)。
+- **所有第三方组件、版本与许可全文**见 [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md)；
+  打包好的 exe 同样适用（同源分发）。
 
 ## 许可证
 
