@@ -230,3 +230,336 @@
     color: #00ff88;
     font-weight: 600;
 }
+
+/* ===== OBS 顶部信息区：实时强度 + 价格表 ===== */
+#obs-top {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.obs-panel {
+    background: rgba(26, 26, 46, 0.95);
+    border-left: 4px solid #00d9ff;
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+.obs-panel-title {
+    color: #00d9ff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+/* 强度条 */
+#strength-panel {
+    min-width: 230px;
+}
+
+.ch-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.ch-label {
+    color: #00d9ff;
+    font-weight: 700;
+    font-size: 13px;
+    width: 14px;
+}
+
+.ch-bar {
+    flex: 1;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.ch-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #00d9ff, #ff4d6d);
+    transition: width 0.25s ease;
+}
+
+.ch-num {
+    color: #e0e0e0;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    min-width: 64px;
+    text-align: right;
+}
+
+.ch-foot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #888;
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #666;
+    flex-shrink: 0;
+}
+
+.dot.online {
+    background: #00d9ff;
+    box-shadow: 0 0 8px #00d9ff;
+}
+
+.dot.offline {
+    background: #ff6b6b;
+}
+
+/* 价格表 */
+.price-table {
+    border-collapse: collapse;
+    font-size: 12px;
+    color: #e0e0e0;
+}
+
+.price-table th,
+.price-table td {
+    padding: 3px 10px 3px 0;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.price-table th {
+    color: #888;
+    font-weight: 500;
+    font-size: 11px;
+    padding-bottom: 6px;
+}
+
+.price-table tr + tr td {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.price-table .pt-type {
+    color: #00d9ff;
+}
+
+.price-table .pt-add {
+    color: #ffb454;
+    font-weight: 700;
+}
+
+.price-table .pt-dur {
+    color: #888;
+}
+
+.price-table .pt-sep td {
+    padding: 0;
+    height: 1px;
+    background: rgba(0, 217, 255, 0.25);
+    border: none;
+}
+
+/* ===== OBS 布局：舞台 + 可定位区块 ===== */
+#obs-stage {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+.obs-block {
+    position: absolute;
+    left: 1%;
+    top: 1%;
+    min-width: 0;
+}
+
+/* 弹幕区块内部仍然是从下往上堆叠 */
+.obs-block[data-block="danmaku"] {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.obs-block[data-block="danmaku"] #danmaku-container {
+    max-width: none;
+    min-height: 0;
+    height: 100%;
+}
+
+/* ===== 布局编辑模式 ===== */
+#obs-edit-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    z-index: 2147483600;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: rgba(16, 16, 32, .95);
+    border: 1px solid #00d9ff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .6);
+    font-size: 12px;
+    color: #e0e0e0;
+    white-space: nowrap;
+}
+
+body.obs-editing #obs-edit-bar {
+    display: flex;
+}
+
+#obs-edit-bar button {
+    background: #00d9ff;
+    color: #04121a;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#obs-edit-bar button:hover {
+    opacity: .85;
+}
+
+#obs-edit-bar .obs-edit-tip,
+#obs-edit-bar .obs-edit-msg {
+    color: #8b93a7;
+}
+
+#obs-edit-bar .obs-edit-msg.ok {
+    color: #00d9ff;
+}
+
+#obs-edit-bar .obs-edit-msg.err {
+    color: #ff6b6b;
+}
+
+body.obs-editing .obs-block {
+    outline: 2px dashed rgba(0, 217, 255, .85);
+    outline-offset: 3px;
+    cursor: move;
+    min-width: 60px;
+    min-height: 30px;
+}
+
+body.obs-editing .obs-block::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    top: -18px;
+    font-size: 11px;
+    color: #00d9ff;
+    background: rgba(16, 16, 32, .9);
+    padding: 1px 6px;
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+body.obs-editing .obs-resize {
+    position: absolute;
+    right: -7px;
+    bottom: -7px;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    background: #00d9ff;
+    border: 2px solid #04121a;
+    cursor: nwse-resize;
+}
+
+body.obs-editing .obs-block.obs-hidden {
+    outline-color: rgba(255, 107, 107, .8);
+    opacity: .35;
+}
+
+.obs-block.obs-hidden {
+    display: none;
+}
+
+
+/* ===== 单块模式（/obs/strength、/obs/price、/obs/danmaku）=====
+   每个独立源只渲染一个区块，位置/大小完全交给 OBS 的「变换」控制，
+   所以这里取消页内的绝对定位，改为自然流式布局。 */
+body.obs-single #obs-stage {
+    position: static;
+    inset: auto;
+    width: 100%;
+    height: 100%;
+}
+
+body.obs-single .obs-block {
+    position: static;
+    left: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+}
+
+/* 弹幕源：占满整个源高度，新弹幕从底部往上堆 */
+body.obs-single .obs-block[data-block="danmaku"] {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100vh;
+    padding: 8px;
+}
+
+/* 管理页：独立源链接列表 */
+.obs-src-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.obs-src-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.obs-src-item .obs-src-name {
+    width: 110px;
+    flex-shrink: 0;
+    color: #e0e0e0;
+    font-size: 13px;
+}
+
+.obs-src-item input {
+    flex: 1;
+    background: #0a0a15;
+    border: 1px solid #333;
+    color: #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: monospace;
+}
+
+.obs-src-item button {
+    padding: 8px 16px;
+    white-space: nowrap;
+}
+
+/* 单块模式只保留目标区块（纯 CSS，首帧即生效） */
+body.obs-single[data-only="strength"] .obs-block:not([data-block="strength"]),
+body.obs-single[data-only="price"] .obs-block:not([data-block="price"]),
+body.obs-single[data-only="danmaku"] .obs-block:not([data-block="danmaku"]) {
+    display: none;
+}

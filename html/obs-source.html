@@ -7,19 +7,59 @@
     <title>OBS 弹幕源</title>
     <link rel="stylesheet" href="/static/obs.css">
     <style>
-        body {
+        html, body {
             margin: 0;
-            padding: 20px;
-            background: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
-        #danmaku-container {
+            padding: 0;
             width: 100%;
+            height: 100%;
+            background: transparent;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
     </style>
 </head>
 <body>
-    <div id="danmaku-container"></div>
+    <div id="obs-stage">
+        <div class="obs-block" data-block="strength">
+            <div id="strength-panel" class="obs-panel">
+                <div class="obs-panel-title">⚡ 电流强度</div>
+                <div class="ch-row">
+                    <span class="ch-label">A</span>
+                    <div class="ch-bar"><div class="ch-fill" id="fill-a"></div></div>
+                    <span class="ch-num" id="num-a">0 / 0</span>
+                </div>
+                <div class="ch-row">
+                    <span class="ch-label">B</span>
+                    <div class="ch-bar"><div class="ch-fill" id="fill-b"></div></div>
+                    <span class="ch-num" id="num-b">0 / 0</span>
+                </div>
+                <div class="ch-foot">
+                    <span class="dot offline" id="conn-dot"></span>
+                    <span id="conn-text">未连接</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="obs-block" data-block="price">
+            <div id="price-panel" class="obs-panel">
+                <div class="obs-panel-title">💰 投喂价格表</div>
+                <table class="price-table" id="price-table"></table>
+            </div>
+        </div>
+
+        <div class="obs-block" data-block="danmaku">
+            <div id="danmaku-container"></div>
+        </div>
+    </div>
+
+    <div id="obs-edit-bar">
+        <span class="obs-edit-tip">拖动区块 = 移动，右下角小方块 = 缩放</span>
+        <button data-act="save">💾 保存布局</button>
+        <button data-act="reset">↺ 重置默认</button>
+        <button data-act="exit">✖ 退出编辑</button>
+        <span class="obs-edit-msg" id="obs-edit-msg"></span>
+    </div>
+
     <script src="/static/obs.js"></script>
 </body>
 </html>
