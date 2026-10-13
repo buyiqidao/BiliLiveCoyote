@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>模拟直播间 - DG-Lab Bilibili 控制面板</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h1>🎮 DG-Lab</h1>
+        <div class="nav">
+            <a href="/">📊 首页</a>
+            <a href="/config.html">⚙️ 配置</a>
+            <a href="/coyote.html">🦊 郊狼控制</a>
+            <a href="/obs.html">🎬 OBS</a>
+            <a href="/test.html" class="active">🧪 测试</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+
+        <div class="card" id="not-enabled" style="display:none;">
+            <h2>⚠️ 测试工具未启用</h2>
+            <p style="color:#ff6b6b;">当前程序不是以「模拟直播间」模式启动的，测试接口不可用。</p>
+            <p style="color:#888; font-size:13px;">
+                请改用下面的命令启动（它不会连接 Bilibili，只会把本地模拟事件喂给同一套处理链路）：<br>
+                <code style="color:#00d9ff;">python fake_room.py</code>
+            </p>
+        </div>
+
+        <div id="test-body" style="display:none;">
+
+        <div class="card">
+            <h2>🧪 发送模拟事件</h2>
+            <p style="color:#888; font-size:13px; margin-bottom:15px;">
+                事件会以 Bilibili 原始协议报文的格式进入 blivedm 解析器，再走完整的触发链路，
+                与真实直播间的处理路径完全一致。
+            </p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>事件类型</label>
+                    <select id="evt-type">
+                        <option value="danmaku">弹幕</option>
+                        <option value="gift">礼物</option>
+                        <option value="super_chat">醒目留言 (SC)</option>
+                        <option value="guard">上舰</option>
+                        <option value="interact">互动（进房/关注…）</option>
+                        <option value="random">随机事件</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="evt-username" placeholder="留空则随机">
+                </div>
+                <div class="form-group">
+                    <label>内容 / 礼物名</label>
+                    <input type="text" id="evt-message" placeholder="弹幕内容或 SC 内容">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>数量 / 连发次数</label>
+                    <input type="number" id="evt-count" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label>连发间隔（秒）</label>
+                    <input type="number" id="evt-interval" value="0.05" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>金额 / 单价（元）</label>
+                    <input type="number" id="evt-price" placeholder="礼物单价或 SC 金额" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>等级 / 动作</label>
+                    <select id="evt-level">
+                        <option value="3">舰长 / 分享</option>
+                        <option value="2">提督 / 关注</option>
+                        <option value="1">总督 / 进入房间</option>
+                        <option value="4">特别关注</option>
+                        <option value="0">无</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button class="btn-primary" onclick="sendEvent()">🚀 发送</button>
+                <span id="send-message" style="font-size:13px;"></span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⚡ 快捷发送</h2>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn-secondary" onclick="quick('danmaku')">💬 弹幕</button>
+                <button class="btn-secondary" onclick="quick('gift')">🎁 礼物</button>
+                <button class="btn-secondary" onclick="quick('super_chat')">💰 SC</button>
+                <button class="btn-secondary" onclick="quick('guard', {level: 3})">⚓ 舰长</button>
+                <button class="btn-secondary" onclick="quick('guard', {level: 1})">👑 总督</button>
+                <button class="btn-secondary" onclick="quick('interact', {action: 'enter'})">🚪 进房</button>
+                <button class="btn-secondary" onclick="quick('interact', {action: 'follow'})">⭐ 关注</button>
+                <button class="btn-secondary" onclick="quick('interact', {action: 'share'})">🔗 分享</button>
+                <button class="btn-secondary" onclick="quick('random')">🎲 随机一条</button>
+                <button class="btn-secondary" onclick="burst('danmaku', 20)">🔥 连发 20 条弹幕</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔁 自动随机事件</h2>
+            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+                <div class="form-group" style="margin:0;">
+                    <label>间隔（秒）</label>
+                    <input type="number" id="auto-interval" value="1" min="0.05" step="0.05">
+                </div>
+                <button class="btn-primary" id="auto-btn" onclick="toggleAuto()">▶️ 开始</button>
+                <span id="auto-state" style="font-size:13px; color:#888;"></span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 已发送统计</h2>
+            <div id="stats" class="config-grid"></div>
+            <div style="margin-top:15px;">
+                <div style="color:#888; font-size:12px; margin-bottom:8px;">最近事件</div>
+                <div id="recent" class="logs-container" style="max-height:320px; overflow-y:auto;"></div>
+            </div>
+        </div>
+
+        </div>
+        </div>
+    </div>
+
+    <script src="/static/test.js"></script>
+    <script src="/static/estop.js"></script>
+</body>
+</html>
