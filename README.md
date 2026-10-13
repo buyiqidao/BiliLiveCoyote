@@ -23,6 +23,9 @@
 - 本项目整体以 **GNU GPL v3** 发布，见 [LICENSE](./LICENSE)。
   之所以是 GPL-3.0：内置的波形数据来自 [DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)
   （其 `LICENSE` 文件为 GPL-3.0），需要按 GPL 合规分发。
+- **[DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)**（作者 Hyperzlib）：
+  本项目的内置郊狼服务参考其 SOCKET 协议**重新实现**，内置波形数据 `pulses.json`
+  由其 `server/data/pulse.json5` 转换而来。完整归属声明见 [LICENSE-GameHub](./LICENSE-GameHub)。
 - 内嵌的 [blivedm](https://github.com/xfgryujk/blivedm) 以 MIT 分发，许可全文见
   [blivedm/LICENSE](./blivedm/LICENSE)。
 - **所有第三方组件、版本与许可全文**见 [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md)；
@@ -141,8 +144,8 @@ dist/BliveDGLab.exe
 - 首次运行会在 **exe 旁边自动生成 `config.yaml`**，以后改配置就改它
 - 网页、内置波形、配置模板等资源全部打进 exe，**exe 可以单独拷走**
 - 想重新打包 / 换图标：`python build.py`（或双击 `build_exe.bat`），需要先 `pip install pyinstaller`
-- exe 与源码同源、同样以 **GPL-3.0** 分发：再分发 exe 时请一并带上 `LICENSE`、`LICENSE-MIT`
-  和 `THIRD_PARTY_LICENSES.md`（打包出来的发布包里就带着这三份）
+- exe 与源码同源、同样以 **GPL-3.0** 分发：再分发 exe 时请一并带上 `LICENSE`、`LICENSE-MIT`、
+  `LICENSE-GameHub` 和 `THIRD_PARTY_LICENSES.md`（打包出来的发布包里就带着这几份）
 
 打包后「紧急停堆」悬浮球照旧可用：主程序会把**自己**再拉起来当悬浮球用
 （内部参数 `--estop-window`），所以不再需要额外附带 `estop_window.py`。
@@ -708,9 +711,10 @@ OBS 里的**浏览器源**默认不算「网页」，所以关掉控制面板就
 
 - 上游 [xyBakaQAQ/Blive_DGLAB](https://github.com/xyBakaQAQ/Blive_DGLAB) 的 MIT 许可与版权声明
   保留在 [LICENSE-MIT](./LICENSE-MIT)（本项目在其基础上大幅改动）
+- [DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)（Hyperzlib）的归属声明、
+  协议与波形数据来源说明见 [LICENSE-GameHub](./LICENSE-GameHub)
 - 内嵌库 [blivedm](https://github.com/xfgryujk/blivedm) 的 MIT 许可保留在 [blivedm/LICENSE](./blivedm/LICENSE)
-- 其余第三方组件（含 GPL-3.0 的 DG-Lab Coyote Game Hub 波形数据）见
-  [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md)
+- 其余第三方组件见 [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md)
 
 GPL-3.0 意味着：你可以自由使用、修改、再分发本项目（包括打包后的 exe），
 但**再分发时必须同样以 GPL-3.0 提供完整源码**，并保留上述各项版权声明。
@@ -721,4 +725,4 @@ GPL-3.0 意味着：你可以自由使用、修改、再分发本项目（包括
 
 - **[xyBakaQAQ/Blive_DGLAB](https://github.com/xyBakaQAQ/Blive_DGLAB)** - 本项目的上游（MIT）
 - **[blivedm](https://github.com/xfgryujk/blivedm)** - Bilibili 直播弹幕库（MIT）
-- **[DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)** - 内置郊狼服务的协议与波形数据参考（该仓库 `LICENSE` 为 GPL-3.0，`package.json` 写 MIT，详见 [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md)）
+- **[DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)** - 内置郊狼服务的协议与波形数据参考（作者 Hyperzlib；该仓库 `LICENSE` 为 GPL-3.0，`package.json` 写 MIT，详见 [LICENSE-GameHub](./LICENSE-GameHub)）

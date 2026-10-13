@@ -1,0 +1,49 @@
+DG-Lab Coyote Game Hub —— 第三方归属声明
+================================================================
+
+  项目名：DG-Lab Coyote Game Hub（战败惩罚——郊狼游戏控制器）
+  仓库  ：https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub
+  作者  ：Hyperzlib（见其 package.json 的 author 字段）及项目贡献者
+  许可  ：GNU General Public License v3（GPL-3.0）
+
+Copyright (c) Hyperzlib and DG-Lab Coyote Game Hub contributors.
+版权归原作者及其贡献者所有。
+
+
+一、本项目用到了它什么
+----------------------------------------------------------------
+
+1. 内置郊狼服务的 SOCKET 协议
+   （bind / heartbeat / msg、强度与波形指令、通道与客户端标识规则等）
+   —— 本项目按其协议行为**重新实现**了服务端（coyote_hub.py），未复制其源代码。
+
+2. 内置波形数据 pulses.json
+   —— 由该项目的 server/data/pulse.json5 转换而来，属于该项目的派生数据。
+
+3. 协议字段含义、报文示例等资料性内容
+   —— 本项目在实现与文档中参考了该项目的公开实现与文档。
+
+
+二、关于它的许可（上游两处自相矛盾，本项目按最保守方式处理）
+----------------------------------------------------------------
+
+  - 该仓库的 LICENSE 文件是 **GNU GPL v3** 全文；
+  - 但它的 package.json 里写的是 "license": "MIT"。
+
+两份声明冲突时，本项目**按 GPL-3.0 遵守**（更严格的那一份），
+因此本项目整体以 GPL-3.0 发布 —— 许可全文见与本文件同目录的 ./LICENSE ，
+（与你看到的这份声明引用的是同一份 GPL-3.0 文本，无需再找第二份）。
+
+如果上游作者后续澄清以 MIT 为准，本项目可以选择改为 MIT 发布；
+在澄清之前，按 GPL-3.0 分发不会有任何合规问题。
+
+
+三、你需要做什么
+----------------------------------------------------------------
+
+再分发本项目（源码或打包好的 exe）时：保留本文件、./LICENSE 、./LICENSE-MIT
+与 ./THIRD_PARTY_LICENSES.md 即可。整体仍需以 GPL-3.0 提供完整对应源码 ——
+对应源码即本仓库本身。
+
+最终以 https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub 仓库中的
+LICENSE / package.json 为准。

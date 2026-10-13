@@ -7,12 +7,15 @@
 
 如果你要再分发本项目的 exe 或源码，请一并保留 `LICENSE`、`LICENSE-MIT` 与本文件。
 
+> 各项第三方归属声明单独成文：上游见 [LICENSE-MIT](./LICENSE-MIT)、blivedm 见
+> [blivedm/LICENSE](./blivedm/LICENSE)、DG-Lab Coyote Game Hub 见 [LICENSE-GameHub](./LICENSE-GameHub)。
+
 ## 一、随源码分发的组件
 
 | 组件 | 许可 | 说明 |
 |---|---|---|
 | [blivedm](https://github.com/xfgryujk/blivedm) | MIT（全文见 `blivedm/LICENSE`） | B 站直播弹幕协议解析库，内嵌于 `blivedm/` |
-| [DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub) | **GPL-3.0**（详见下方说明） | 内置郊狼服务的 SOCKET 协议参考；`pulses.json` 由该项目的 `server/data/pulse.json5` 转换而来 |
+| [DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub) | **GPL-3.0**（详见下方说明与 [LICENSE-GameHub](./LICENSE-GameHub)） | 内置郊狼服务的 SOCKET 协议参考；`pulses.json` 由该项目的 `server/data/pulse.json5` 转换而来 |
 | [Blive_DGLAB（上游）](https://github.com/xyBakaQAQ/Blive_DGLAB) | MIT（全文见 `LICENSE-MIT`） | 本项目 fork 自它，在此基础上做了大量改动与重写 |
 
 ### 关于 DG-Lab Coyote Game Hub 的许可
@@ -25,6 +28,8 @@
 - `pulses.json` 由上游 `server/data/pulse.json5` 转换而来，属于该项目的派生数据
 
 如果上游作者后续澄清为 MIT，本项目可以选择改回 MIT；在此之前按 GPL-3.0 遵守不会有问题。
+
+更完整的归属与使用说明（用到了它的哪些东西、你需要做什么）见 [LICENSE-GameHub](./LICENSE-GameHub)。
 
 ## 二、Python 依赖（运行时 / 打包时）
 

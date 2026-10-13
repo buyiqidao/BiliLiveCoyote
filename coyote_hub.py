@@ -12,7 +12,7 @@ https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub ，
 
 ⚠️ 许可：该项目的 LICENSE 文件是 GNU GPL v3（package.json 里写的是 MIT，
 上游两处不一致）。因此本项目整体按 GPL-3.0 分发 ——
-详见 LICENSE 与 THIRD_PARTY_LICENSES.md。
+归属声明见 LICENSE-GameHub，许可全文见 LICENSE，第三方组件见 THIRD_PARTY_LICENSES.md。
 """
 import asyncio
 import json
