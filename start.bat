@@ -1,10 +1,10 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Bilibili Danmaku + DG-Lab Controller
+title BiliLiveCoyote  (BiliLive  /  DG-Lab Coyote)
 echo.
 echo  ================================================
-echo    Bilibili Live Danmaku   and   DG-Lab Coyote
+echo    BiliLiveCoyote  -  BiliLive Danmaku  +  DG-Lab Coyote
 echo  ================================================
 echo.
 set "PY=python"

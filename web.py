@@ -293,6 +293,11 @@ class WebUI:
             html = html.replace(
                 "<body>", f'<body class="obs-single" data-only="{only}">', 1
             )
+            # OBS 新增浏览器源时会拿页面标题当源名字，这里按区块给个能认出来的标题
+            label = {"strength": "电流强度", "price": "投喂价格表", "danmaku": "弹幕列表"}.get(only)
+            if label:
+                html = html.replace("<title>OBS 覆盖层 · BiliLiveCoyote</title>",
+                                    f"<title>BiliLiveCoyote · {label}</title>", 1)
         return self._page_response(html)
 
     async def handle_login_page(self, request):

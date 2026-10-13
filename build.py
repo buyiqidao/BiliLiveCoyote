@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """一键打包：python build.py
 
-产物：dist/BliveDGLab.exe（单文件，双击即用，不需要装 Python）
+产物：dist/BiliLiveCoyote.exe（单文件，双击即用，不需要装 Python）
 """
 import os
 import shutil
@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-NAME = "BliveDGLab"
+NAME = "BiliLiveCoyote"
 
 # 打进 exe 的只读资源：源文件 -> exe 内的相对目录
 DATAS = [

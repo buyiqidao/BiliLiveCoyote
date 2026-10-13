@@ -220,7 +220,7 @@ def setup_logging(level: str = None) -> None:
 def parse_args(argv=None, default_fake: bool = False) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="main.py",
-        description="Bilibili 直播弹幕 DG-Lab 控制器",
+        description="BiliLiveCoyote · BiliLive 弹幕控制郊狼（Bilibili 直播弹幕 → DG-Lab）",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "示例：\n"

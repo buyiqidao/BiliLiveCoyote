@@ -1,4 +1,11 @@
-# Bilibili 直播弹幕 DG-Lab 控制器
+# BiliLiveCoyote · BiliLive 弹幕控制郊狼（DG-Lab）
+
+> **BiliLiveCoyote** 是一个把 **B 站直播间弹幕/礼物/SC/上舰** 变成 **DG-Lab 郊狼（Coyote）**
+> 电击强度的开源控制器：内置郊狼 SOCKET 服务（官方 App 扫码直连，无需 Game Hub）、
+> 扫码自动填入直播间、OBS 覆盖层、桌面「紧急停堆」悬浮球，还能一键打包成免装 Python 的单文件 exe。
+>
+> <sub>**关键词**：BiliLiveCoyote · BiliLive · 郊狼 · DG-Lab · DGLAB · Coyote · 弹幕控制 ·
+> B站直播弹幕 · 弹幕触发 · OBS 覆盖层 · 紧急停堆 · Blive_DGLAB（上游）</sub>
 
 > ⚠️ **使用前必读：[SAFETY.md](./SAFETY.md)（使用安全声明与免责声明）**
 >
@@ -184,12 +191,12 @@ python main.py
 
 ## 打包成独立 exe
 
-> 目标电脑**不需要安装 Python**：`dist/BliveDGLab.exe` 单文件、拷走双击即用。
+> 目标电脑**不需要安装 Python**：`dist/BiliLiveCoyote.exe` 单文件、拷走双击即用。
 
 `dist/` 下已经生成好一个**单文件 exe**，拷到任意目录双击就能用，目标电脑无需安装 Python：
 
 ```
-dist/BliveDGLab.exe
+dist/BiliLiveCoyote.exe
 ```
 
 - 首次运行会在 **exe 旁边自动生成 `config.yaml`**，以后改配置就改它
@@ -341,7 +348,7 @@ python estop_window.py --url http://192.168.1.5:17800
 - 需要 Pillow（已在 `requirements.txt` 里）；**没装也能跑**，会自动退回 100% 由 tkinter
   绘制的旧画法（能用，但圆边有锯齿）。想让球好看：`pip install pillow`
 - 打包后的 exe 已经把 Pillow 带进去了；自检一眼看出用的是哪种画法：
-  `python estop_window.py --self-test`（或 `BliveDGLab.exe --estop-window --estop-selftest`）
+  `python estop_window.py --self-test`（或 `BiliLiveCoyote.exe --estop-window --estop-selftest`）
 
 > 它本质是个"遥控器"：通过 `http://127.0.0.1:17800/api/hub/emergency-stop` 让主程序执行停堆，
 > 所以**主程序必须正在运行**。连不上时圆球会变橙色并提示，不会假装停堆成功。
@@ -375,7 +382,7 @@ python estop_window.py --url http://192.168.1.5:17800
 > 下面是细节玩法。
 
 测试工具**不是另一个进程**，而是主程序的一个开关 —— 同一个进程、同一个端口、同一份 `config.yaml`，
-不会和正在运行的 Blive_DGLAB 冲突：
+不会和正在运行的 BiliLiveCoyote 冲突：
 
 | 启动方式 | 连接 Bilibili | 测试页 / 事件注入 | 用途 |
 | --- | :---: | :---: | --- |
@@ -584,7 +591,7 @@ python main.py --test --port 0            # 端口被占用时自动挑空闲端
 ├── make_icon.py         # 生成程序图标 app.ico
 ├── app.ico              # 程序图标
 ├── 启动.bat / start.bat # Windows 一键启动
-├── dist/                # 打包产物：BliveDGLab.exe + 上述许可文件
+├── dist/                # 打包产物：BiliLiveCoyote.exe + 上述许可文件
 ├── html/                # Web UI 前端文件
 │   ├── index.html       # 首页
 │   ├── config.html      # 配置页面
@@ -795,10 +802,11 @@ OBS 里的**浏览器源**默认不算「网页」，所以关掉控制面板就
 
 ## 来源与许可
 
-- 本项目 **fork 自 [xyBakaQAQ/Blive_DGLAB](https://github.com/xyBakaQAQ/Blive_DGLAB)**（MIT），
-  并在其基础上做了**大量改动与重写**（扫码登录、内置郊狼服务、OBS 独立源、本地模拟直播间、
-  桌面紧急停堆悬浮球、单文件 exe 打包等）。上游的 MIT 版权与许可声明完整保留在
-  [LICENSE-MIT](./LICENSE-MIT)。
+- 本项目原名叫 **Blive_DGLAB**，**fork 自 [xyBakaQAQ/Blive_DGLAB](https://github.com/xyBakaQAQ/Blive_DGLAB)**（MIT），
+  现更名 **BiliLiveCoyote**。在它基础上做了**大量改动与重写**（扫码登录、内置郊狼服务、
+  OBS 独立源、本地模拟直播间、桌面紧急停堆悬浮球、单文件 exe 打包等）。
+  上游的 MIT 版权与许可声明完整保留在 [LICENSE-MIT](./LICENSE-MIT)。
+  （如果你是从上游找过来的：老名字、老配置都能直接用，只是 exe 改叫 `BiliLiveCoyote.exe`。）
 - 本项目整体以 **GNU GPL v3** 发布，见 [LICENSE](./LICENSE)。
   之所以是 GPL-3.0：内置的波形数据来自 [DG-Lab Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub)
   （其 `LICENSE` 文件为 GPL-3.0），需要按 GPL 合规分发。

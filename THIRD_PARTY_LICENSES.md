@@ -1,6 +1,6 @@
 # 第三方组件与许可说明（THIRD_PARTY_LICENSES）
 
-本项目 **Blive_DGLAB** 整体以 **GNU GPL v3**（见 [LICENSE](./LICENSE)）发布。
+本项目 **BiliLiveCoyote** 整体以 **GNU GPL v3**（见 [LICENSE](./LICENSE)）发布。
 
 它使用了下列第三方组件；各组件的版权归其作者所有，并按其自身许可提供。
 本文件列出实际使用的版本与许可全文，**打包分发的 exe 同样适用**。
