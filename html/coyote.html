@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>郊狼控制 - DG-Lab Bilibili 控制面板</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h1>🎮 DG-Lab</h1>
+        <div class="nav">
+            <a href="/">📊 首页</a>
+            <a href="/config.html">⚙️ 配置</a>
+            <a href="/coyote.html" class="active">🦊 郊狼控制</a>
+            <a href="/obs.html">🎬 OBS</a>
+            <a href="/test.html" id="nav-test" style="display:none">🧪 测试</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+
+        <div class="card">
+            <h2>📡 设备状态</h2>
+            <div class="config-grid">
+                <div class="config-item">
+                    <div class="config-label">控制模式</div>
+                    <div class="config-value" id="mode-label">-</div>
+                </div>
+                <div class="config-item">
+                    <div class="config-label">连接状态</div>
+                    <div class="config-value">
+                        <span class="status offline" id="conn-status">未连接</span>
+                    </div>
+                </div>
+                <div class="config-item">
+                    <div class="config-label">客户端 ID</div>
+                    <div class="config-value" id="client-id">-</div>
+                </div>
+                <div class="config-item">
+                    <div class="config-label">设备 ID</div>
+                    <div class="config-value" id="target-id">-</div>
+                </div>
+                <div class="config-item">
+                    <div class="config-label">A 通道强度</div>
+                    <div class="config-value" id="strength-a">-</div>
+                </div>
+                <div class="config-item">
+                    <div class="config-label">B 通道强度</div>
+                    <div class="config-value" id="strength-b">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="lan-warning" style="display:none; border-color:#ff6b6b;">
+            <h2 style="color:#ff6b6b;">⚠️ 手机连不上：WebUI 只监听了本机</h2>
+            <p style="color:#e0e0e0; font-size:13px;">
+                当前只监听 <code id="lan-bind">-</code>，手机等局域网设备无法访问，
+                郊狼 App 会提示「服务器连接失败」。
+            </p>
+            <div style="display:flex; gap:10px; align-items:center; margin-top:10px; flex-wrap:wrap;">
+                <button class="btn-primary" onclick="allowLan()">🔓 开启局域网访问</button>
+                <span id="lan-message" style="font-size:13px;"></span>
+            </div>
+            <small style="color:#888; display:block; margin-top:8px;">
+                也可以手动把 <code>config.yaml</code> 里的 <code>webui.host</code> 改成
+                <code>0.0.0.0</code> 后重启程序。开启后请把 WebUI 当成局域网内的私密页面，
+                不要在公共 Wi-Fi 下使用。
+            </small>
+        </div>
+
+        <div class="card" id="embedded-panel">
+            <h2>📱 连接郊狼 App</h2>
+            <p style="color:#888; font-size:13px; margin-bottom:15px;">
+                「郊狼」App → 设备控制 → <b>SOCKET 控制（网络控制）</b>。不同 App 版本入口略有差异，
+                下面两种方式任选一种。
+            </p>
+            <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">
+                <div>
+                    <div style="background:#fff; padding:10px; border-radius:6px; width:240px; height:240px; display:flex; align-items:center; justify-content:center;">
+                        <img id="qr-img" alt="连接二维码" style="width:220px; height:220px; display:block;">
+                    </div>
+                    <div style="margin-top:8px; font-size:12px; color:#888;">
+                        二维码内容：
+                        <label style="color:#00d9ff; cursor:pointer;">
+                            <input type="radio" name="qr-format" value="link" checked onchange="setQrFormat('link')"> 官方链接
+                        </label>
+                        <label style="color:#00d9ff; cursor:pointer; margin-left:10px;">
+                            <input type="radio" name="qr-format" value="raw" onchange="setQrFormat('raw')"> 纯地址
+                        </label>
+                    </div>
+                </div>
+
+                <div style="flex:1; min-width:320px;">
+                    <div class="form-group">
+                        <label>① 用手机「相机」或「微信扫一扫」扫二维码</label>
+                        <small>二维码是官方 deep link，系统会唤起郊狼 App 并自动填好地址（App 里没有扫一扫也可以用这招）</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>② 或者在 App 里手动填写地址</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" id="ws-url" readonly>
+                            <button onclick="copyField('ws-url')">📋 复制</button>
+                        </div>
+                        <small>把这段 <code>ws://...</code> 地址粘进 App 的 SOCKET 地址输入框</small>
+                        <small style="margin-top:6px;">
+                            如果 App 要分开填：IP <code id="addr-host">-</code> ·
+                            端口 <code id="addr-port">-</code> ·
+                            路径 <code id="addr-path">-</code>
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>客户端 ID</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" id="client-id-field" readonly>
+                            <button onclick="copyField('client-id-field')">📋 复制</button>
+                        </div>
+                        <small>如果 App 只让填 ID，就填这个（必须与上面地址的最后一段一致）</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>当前波形</label>
+                        <input type="text" id="pulse-name" readonly>
+                        <small>可在「配置 → DG-Lab」中修改</small>
+                    </div>
+
+                    <small style="color:#888;">
+                        手机需与本机处于同一局域网；地址里的 IP 手机访问不到时，请在配置里设置
+                        <code>dglab.advertise_host</code>
+                    </small>
+                    <small style="display:block; margin-top:8px; color:#888;">
+                        诊断：监听 <code id="diag-bind">-</code> ·
+                        对外 <code id="diag-advertise">-</code> ·
+                        <span id="diag-lan">-</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="manual-panel">
+            <h2>🎛️ 手动控制</h2>
+            <div class="config-grid">
+                <div class="config-item">
+                    <div class="config-label">A 通道</div>
+                    <div style="display:flex; gap:8px; margin-top:8px;">
+                        <button class="btn-secondary" onclick="manual('sub', 'A')">− 1</button>
+                        <button class="btn-primary" onclick="manual('add', 'A')">+ 1</button>
+                    </div>
+                </div>
+                <div class="config-item">
+                    <div class="config-label">B 通道</div>
+                    <div style="display:flex; gap:8px; margin-top:8px;">
+                        <button class="btn-secondary" onclick="manual('sub', 'B')">− 1</button>
+                        <button class="btn-primary" onclick="manual('add', 'B')">+ 1</button>
+                    </div>
+                </div>
+                <div class="config-item">
+                    <div class="config-label">复位</div>
+                    <div style="display:flex; gap:8px; margin-top:8px;">
+                        <button class="btn-secondary" onclick="manual('set', 'A', 0)">A 归零</button>
+                        <button class="btn-secondary" onclick="manual('set', 'B', 0)">B 归零</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top:14px; margin-bottom:0;">
+                <label>强度上限</label>
+                <div style="font-size:13px; color:#e0e0e0;">
+                    <code id="limit-info">A: - / B: -</code>
+                    <span style="color:#888;">
+                        —— 由郊狼 <b>设备 / App</b> 设置（V3 是蓝牙软上限），
+                        SOCKET 协议没有修改指令，<b>程序无法调整</b>。
+                    </span>
+                </div>
+            </div>
+            <div id="manual-message" style="margin-top:12px; font-size:13px;"></div>
+        </div>
+
+        <div class="card" id="remote-panel">
+            <h2>🌐 外部 Game Hub 控制台</h2>
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+                <input type="text" id="remote-url" readonly>
+                <button onclick="openRemote()">↗ 新窗口打开</button>
+            </div>
+            <iframe id="remote-frame" src="about:blank" style="width:100%; height:640px; border:1px solid #252540; border-radius:6px; background:#0a0a15;"></iframe>
+        </div>
+
+        </div>
+    </div>
+
+    <script src="/static/coyote.js"></script>
+
+    <script>
+        // 只有以模拟直播间模式启动时才显示「测试」入口
+        fetch('/api/test/status').then(r => r.json()).then(d => {
+            if (d.enabled) document.getElementById('nav-test').style.display = '';
+        }).catch(() => {});
+    </script>
+    <script src="/static/estop.js"></script>
+</body>
+</html>
