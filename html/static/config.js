@@ -61,6 +61,14 @@ function populateForm(config) {
     const dglab = config.dglab || {};
     document.getElementById('dglab-enabled').checked = dglab.enabled !== false;
     document.getElementById('dglab-mode').value = dglab.mode === 'remote' ? 'remote' : 'embedded';
+    const channelSelect = document.getElementById('dglab-channel');
+    if (channelSelect) {
+        let channel = String(dglab.channel || '').toUpperCase();
+        if (!channel) {
+            channel = String(dglab.controller_id || '').toLowerCase().endsWith('.channelb') ? 'B' : 'A';
+        }
+        channelSelect.value = ['A', 'B', 'AB'].includes(channel) ? channel : 'A';
+    }
     document.getElementById('dglab-client-id').value = dglab.client_id || 'blivedglab';
     document.getElementById('controller-url').value = dglab.controller_url || '';
     document.getElementById('controller-id').value = dglab.controller_id || '';
@@ -221,6 +229,7 @@ async function saveConfig() {
             dglab: Object.assign({}, currentConfig.dglab, {
                 enabled: document.getElementById('dglab-enabled').checked,
                 mode: document.getElementById('dglab-mode').value,
+                channel: document.getElementById('dglab-channel').value,
                 client_id: document.getElementById('dglab-client-id').value || 'blivedglab',
                 pulse_id: document.getElementById('dglab-pulse-id').value,
                 controller_url: document.getElementById('controller-url').value,

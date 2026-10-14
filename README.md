@@ -155,6 +155,7 @@ dglab:
   enabled: true          # 是否启用郊狼控制器
   mode: embedded         # embedded=内置郊狼服务，remote=外部 Game Hub
   client_id: blivedglab  # 内置模式下 App 扫码使用的客户端 ID
+  channel: A             # 事件（弹幕/礼物/SC/上舰）控制哪个通道：A / B / AB
   pulse_id: d6f83af0     # 内置模式下输出的波形 ID（见 pulses.json）
   # advertise_host: ""   # 可选，扫码地址使用的 IP，留空自动探测局域网 IP
   controller_url: "http://127.0.0.1:8920"   # 仅 remote 模式使用
@@ -325,6 +326,7 @@ webui:
 | `dglab.enabled` | 郊狼总开关（关掉=只显示不输出） | `true` |
 | `dglab.mode` | `embedded` 内置 / `remote` 外置 Game Hub | `embedded` |
 | `dglab.client_id` | 郊狼 App 扫码用的客户端 ID（可自定义） | `blivedglab` |
+| `dglab.channel` | 事件（弹幕/礼物/SC/上舰）作用通道：`A` / `B` / `AB` | `A` |
 | `dglab.pulse_id` | 内置波形 ID（见 `pulses.json`） | `d6f83af0`（呼吸） |
 | `estop.auto_launch` | 启动主程序时同时拉起桌面停堆悬浮球 | `true` |
 | `test.enabled` | 测试模式（出现「🧪 测试」页） | `false` |
@@ -550,6 +552,7 @@ python main.py --test --port 0            # 端口被占用时自动挑空闲端
 | --- | --- |
 | `dglab.mode` | `embedded` 使用内置服务，`remote` 使用外部 Game Hub |
 | `dglab.client_id` | App 扫码使用的客户端 ID，修改后需要重新扫码 |
+| `dglab.channel` | 事件控制哪个通道：`A` / `B` / `AB`（默认 `A`；`B` 需设备侧也允许 B 通道输出） |
 | `dglab.pulse_id` | 输出波形 ID，内置波形见 `pulses.json`（如 `d6f83af0` 呼吸） |
 | `dglab.advertise_host` | 可选，扫码地址对外使用的 IP，留空则自动探测局域网 IP |
 
@@ -789,6 +792,22 @@ bilibili:
 - 到达上限时，手动控制区标黄提示「⚠️ 已达强度上限 20，无法继续提升」
 - 日志（同样内容 30 秒最多一条）：
   `[郊狼] A 通道已达强度上限 20，无法继续提升（上限由郊狼 App 设置，程序无法修改）`
+
+### 弹幕只加 A 通道 / 怎么控制 B 通道？
+
+事件（弹幕 / 礼物 / SC / 上舰）默认只驱动 **A 通道**。想单独控制 B 通道，或让两个通道一起动，
+把 `dglab.channel` 改成 `B` / `AB` 即可（配置页「🎮 DG-Lab → 控制通道」，保存后立即生效）：
+
+```yaml
+dglab:
+  channel: B    # A（默认）/ B / AB（双通道）
+```
+
+> B 通道能否真正输出还取决于设备 / App：内置郊狼服务按官方 SOCKET 协议直接控制 B 通道；
+> 若使用外部 Game Hub，需要把它的 `bChannelMode` 设为 `discrete`（独立模式），
+> `sync` 模式下 B 跟随 A，`off` 模式则完全关闭 B。
+>
+> 「郊狼控制」页面里的 **B 通道 +1 / −1 / 归零** 按钮是独立的手动测试，不受该配置影响。
 
 ### 郊狼 App 提示「服务器连接失败」怎么办？
 

@@ -17,6 +17,57 @@ from utils import parse_duration
 
 logger = logging.getLogger(__name__)
 
+# DG-Lab 通道编号（与 coyote_hub.py 的 SOCKET 协议一致：1=A，2=B）
+CHANNEL_A = 1
+CHANNEL_B = 2
+
+# dglab.channel 允许的写法 -> 实际控制的通道组合
+_CHANNEL_ALIASES = {
+    "A": (CHANNEL_A,),
+    "1": (CHANNEL_A,),
+    "B": (CHANNEL_B,),
+    "2": (CHANNEL_B,),
+    "AB": (CHANNEL_A, CHANNEL_B),
+    "BA": (CHANNEL_A, CHANNEL_B),
+    "A+B": (CHANNEL_A, CHANNEL_B),
+    "BOTH": (CHANNEL_A, CHANNEL_B),
+    "ALL": (CHANNEL_A, CHANNEL_B),
+    "双": (CHANNEL_A, CHANNEL_B),
+    "双通道": (CHANNEL_A, CHANNEL_B),
+}
+
+
+def resolve_channels(value, default=(CHANNEL_A,)) -> tuple:
+    """把「要控制哪个通道」解析成通道编号元组
+
+    事件（弹幕 / 礼物 / SC / 上舰）默认只驱动 A 通道；把 ``dglab.channel``
+    设为 ``B`` 或 ``AB`` 即可控制 B 通道 / 双通道。这里同时兼容 1/2、列表
+    （如 ``[1, 2]``）等写法，无法识别时回退到 default。
+    """
+    if value is None:
+        return tuple(default)
+
+    if isinstance(value, (list, tuple, set)):
+        channels = []
+        for item in value:
+            try:
+                channel = int(item)
+            except (TypeError, ValueError):
+                continue
+            if channel in (CHANNEL_A, CHANNEL_B) and channel not in channels:
+                channels.append(channel)
+        return tuple(channels) or tuple(default)
+
+    key = str(value).strip().upper()
+    if key in _CHANNEL_ALIASES:
+        return _CHANNEL_ALIASES[key]
+    return tuple(default)
+
+
+def channel_name(channel: int) -> str:
+    """通道编号 -> 显示名（日志用）"""
+    return "B" if channel == CHANNEL_B else "A"
+
 
 class DGLabController:
     """DG-Lab 郊狼控制器"""
@@ -68,50 +119,87 @@ class DGLabController:
     def client_id(self) -> str:
         return str(self.cfg.get("client_id") or "blivedglab")
 
+    @property
+    def channels(self) -> tuple:
+        """事件驱动时要控制的通道（由 ``dglab.channel`` 决定）
+
+        默认只控制 A 通道；配置 ``B`` / ``AB`` 即可控制 B 通道或双通道。
+        若配置里没有 ``channel``，但 remote 模式的 ``controller_id`` 带
+        ``.channelB`` 后缀，则继续只控制 B 通道，兼容旧配置。
+        """
+        # 旧写法：remote 模式下 controller_id 带 .channelB 后缀 = 只控制 B 通道
+        if self.mode == "remote" and self.controller_id.endswith(".channelB"):
+            return (CHANNEL_B,)
+        if "channel" in self.cfg:
+            return resolve_channels(self.cfg.get("channel"))
+        return (CHANNEL_A,)
+
     # ── 控制 ────────────────────────────────────────────────────────────
-    async def strength(self, *, add: int = 0, sub: int = 0, force: bool = False) -> bool:
+    async def strength(self, *, add: int = 0, sub: int = 0, force: bool = False,
+                       channel=None) -> bool:
         """调整强度，返回是否真正下发成功
 
+        channel 为空时使用配置里的 ``dglab.channel``（默认 A 通道）；
+        传入通道编号或 "A"/"B"/"AB" 等写法可只对指定通道生效。
         force=True 时忽略 enabled 开关（用于把强度降回去，避免强度卡在高位）。
         """
         if not self.enabled and not force:
             logger.debug("[DGLab] 已禁用，跳过强度调整")
             return False
 
+        channels = resolve_channels(channel, default=self.channels)
         if self.mode == "embedded":
-            return await self._strength_embedded(add=add, sub=sub)
-        return await self._strength_remote(add=add, sub=sub)
+            return await self._strength_embedded(add=add, sub=sub, channels=channels)
+        return await self._strength_remote(add=add, sub=sub, channels=channels)
 
-    async def _strength_embedded(self, *, add: int = 0, sub: int = 0) -> bool:
+    async def _strength_embedded(self, *, add: int = 0, sub: int = 0,
+                                 channels=None) -> bool:
         if self.hub is None:
             logger.error("[DGLab] 内置郊狼服务未初始化，无法调整强度")
             return False
         delta = int(add) if add else -int(sub)
         if delta == 0:
             return True
-        result = await self.hub.change_strength(delta)
-        if not result.get("ok"):
+        channels = tuple(channels or self.channels)
+        ok = True
+        for channel in channels:
+            result = await self.hub.change_strength(delta, channel)
+            if not result.get("ok"):
+                ok = False
+        if not ok:
             self._log_throttled("offline", logging.INFO,
                                 "[DGLab] 郊狼设备未连接，强度调整已跳过（30 秒内只提示一次）")
-            return False
-        return True
+        return ok
 
-    async def _strength_remote(self, *, add: int = 0, sub: int = 0, set_value=None) -> bool:
-        url = f"{self.controller_url}/api/v2/game/{self.controller_id}/strength"
+    def _remote_controller_id(self, channel: int) -> str:
+        """外部 Game Hub 用 ``{id}.channelB`` 后缀区分 B 通道"""
+        controller_id = self.controller_id
+        suffix = ".channelB"
+        if channel == CHANNEL_B:
+            return controller_id if controller_id.endswith(suffix) else controller_id + suffix
+        return controller_id[:-len(suffix)] if controller_id.endswith(suffix) else controller_id
+
+    async def _strength_remote(self, *, add: int = 0, sub: int = 0, set_value=None,
+                               channels=None) -> bool:
+        channels = tuple(channels or self.channels)
         if set_value is not None:
             payload = {"strength": {"set": int(set_value)}}
         else:
             payload = {"strength": {"add": add} if add else {"sub": sub}}
-        try:
-            async with self.session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=5)) as resp:
-                data = await resp.json()
-                if data.get("status") != 1:
-                    logger.warning(f"[DGLab] 接口异常: {data}")
-                    return False
-                return True
-        except Exception as e:
-            logger.error(f"[DGLab] 请求失败: {e}")
-            return False
+        ok = True
+        for channel in channels:
+            controller_id = self._remote_controller_id(channel)
+            url = f"{self.controller_url}/api/v2/game/{controller_id}/strength"
+            try:
+                async with self.session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=5)) as resp:
+                    data = await resp.json()
+                    if data.get("status") != 1:
+                        logger.warning(f"[DGLab] {channel_name(channel)} 通道接口异常: {data}")
+                        ok = False
+            except Exception as e:
+                logger.error(f"[DGLab] {channel_name(channel)} 通道请求失败: {e}")
+                ok = False
+        return ok
 
     async def release(self) -> bool:
         """把郊狼强度归零（关闭控制器 / 程序退出时调用）"""
@@ -123,13 +211,17 @@ class DGLabController:
                 return False
             logger.info("[DGLab] 已将郊狼强度归零")
             return True
-        ok = await self._strength_remote(set_value=0)
+        # 外部 Game Hub：A/B 都归零（B 在 sync 模式下由 A 带动，重复归零无副作用）
+        ok = await self._strength_remote(set_value=0, channels=(CHANNEL_A, CHANNEL_B))
         if ok:
             logger.info("[DGLab] 已请求外部 Game Hub 将强度归零")
         return ok
 
-    async def pulse(self, add: int, duration):
-        """脉冲：增加强度，持续一段时间后减少"""
+    async def pulse(self, add: int, duration, channel=None):
+        """脉冲：增加强度，持续一段时间后减少
+
+        channel 为空时使用配置里的 ``dglab.channel``（默认 A 通道）。
+        """
         if not self.enabled:
             logger.debug("[DGLab] 已禁用，跳过脉冲")
             return
@@ -142,7 +234,10 @@ class DGLabController:
             logger.error(f"[DGLab] 时长解析失败，已跳过本次脉冲: {e}")
             return
 
-        if not await self.strength(add=add):
+        # 同一脉冲的“加/减”必须作用在同一组通道上，先解析一次定下来
+        channels = resolve_channels(channel, default=self.channels)
+
+        if not await self.strength(add=add, channel=channels):
             return
 
         current = asyncio.current_task()
@@ -157,7 +252,7 @@ class DGLabController:
             # 都必须把强度降回去 —— 保证「任何退出路径强度都会回落」这个不变量。
             # 紧急停堆会另外显式归零一次，两者幂等，不会冲突。
             try:
-                await self.strength(sub=add, force=True)
+                await self.strength(sub=add, force=True, channel=channels)
             except Exception as e:
                 logger.error(f"[DGLab] 强度回落失败: {e}")
 

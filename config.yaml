@@ -22,6 +22,11 @@ dglab:
   mode: embedded
   # 内置模式下官方 App 扫码使用的客户端 ID
   client_id: blivedglab
+  # 事件（弹幕 / 礼物 / SC / 上舰）控制哪个通道：
+  #   A  = 只控制 A 通道（默认，与旧版本一致）
+  #   B  = 只控制 B 通道
+  #   AB = A / B 两个通道一起控制
+  channel: A
   # 内置模式使用的波形 ID（见 pulses.json，如 d6f83af0 = 呼吸）
   pulse_id: d6f83af0
   # 内置模式对外广播的地址，留空则自动探测局域网 IP
