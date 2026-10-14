@@ -2,6 +2,8 @@
 """工具函数模块"""
 import asyncio
 import logging
+
+import aiohttp_compat  # noqa: F401  # aiohttp / brotli 多版本兼容补丁（导入即生效）
 import os
 import re
 import shutil

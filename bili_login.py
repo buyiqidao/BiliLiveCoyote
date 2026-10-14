@@ -15,6 +15,8 @@ from typing import Optional
 
 import aiohttp
 
+import aiohttp_compat  # noqa: F401  # aiohttp / brotli 多版本兼容补丁（导入即生效）
+
 logger = logging.getLogger(__name__)
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
